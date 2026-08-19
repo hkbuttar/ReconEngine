@@ -1,0 +1,14 @@
+{
+  "pulled_at": "2026-08-19T16:19:31.476661+00:00",
+  "sources": {
+    "binance": "https://data-api.binance.vision/api/v3/aggTrades?symbol=BTCUSDT",
+    "coinbase": "https://api.exchange.coinbase.com/products/BTC-USD/trades",
+    "kraken": "https://api.kraken.com/0/public/Trades?pair=XBTUSD"
+  },
+  "counts": {
+    "binance": 5000,
+    "coinbase": 5000,
+    "kraken": 1008,
+    "total": 11008
+  }
+}

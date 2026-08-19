@@ -1,0 +1,13 @@
+pandas>=2.2
+numpy>=1.26
+sqlalchemy>=2.0
+pyodbc>=5.1
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+anthropic>=0.34
+xgboost>=2.1
+lightgbm>=4.5
+scikit-learn>=1.5
+pytest>=8.2
+python-dotenv>=1.0
