@@ -85,7 +85,13 @@ reconengine/
       unit-checked that bad rows (dup keys, bad side, negative price,
       unparseable date, dangling ref) are actually rejected. See
       `ingestion/README.md`.
-- [ ] Step 5 — Reconciliation Matching Engine
+- [x] **Step 5 — Reconciliation Matching Engine.** `reconciliation/matching_engine.py`
+      classifies every (trade, stage) pair matched/broken/missing with
+      tolerance-based field matching, scores itself against the synthetic
+      ground-truth labels (100% accuracy after fixing a real precision-floor
+      bug found by that scoring), and fuzzy-matches orphan records on a
+      composite key. Loaded into `reconciliation_results`. See
+      `reconciliation/README.md`.
 - [ ] Step 6 — Industry-Grounded Root-Cause Taxonomy
 - [ ] Step 7 — Rule-Based & ML-Assisted Root-Cause Classification
 - [ ] Step 8 — LLM-Assisted Break Explanation & Natural-Language Query

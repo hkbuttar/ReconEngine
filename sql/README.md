@@ -53,8 +53,9 @@ timestamp suffixes across venues.
 
 ## Files
 
-- `schema.sql` — DDL for all 10 tables, keys, constraints, indexes
-  (includes `ingestion_audit`, added in Step 4).
+- `schema.sql` — DDL for all 11 tables, keys, constraints, indexes
+  (includes `ingestion_audit` from Step 4, `reconciliation_results` from
+  Step 5).
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
 - `views.sql` — views the Qlik data model (Step 15) will load from.
@@ -66,6 +67,8 @@ timestamp suffixes across venues.
   anti-join inserts), driven by `ingestion/run_pipeline.py` — see
   `ingestion/README.md` for the validation + audit trail wrapped around
   these.
+- `ingest_reconciliation.sql` — loads Step 5's matching engine output
+  (`reconciliation/matching_engine.py`) into `reconciliation_results`.
 
 ## ER diagram
 

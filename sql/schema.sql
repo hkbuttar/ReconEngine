@@ -155,3 +155,24 @@ CREATE TABLE ingestion_audit (
     error_message NVARCHAR(MAX) NULL
 );
 CREATE INDEX ix_ingestion_audit_source ON ingestion_audit(source_name, started_at);
+
+-- Step 5: matching engine output (reconciliation/matching_engine.py).
+-- Tolerance-based field matching (price/quantity/side), superseding
+-- vw_TradeReconciliationStatus's exact-equality check for anything that
+-- needs the real classification. 'missing' rows still carry a real
+-- trade_id (this engine always starts from a real trade); orphan records
+-- with no real trade at all are handled separately (fuzzy-match CSVs,
+-- not persisted here -- see reconciliation/README.md).
+CREATE TABLE reconciliation_results (
+    result_id           BIGINT IDENTITY(1,1) PRIMARY KEY,
+    trade_id             BIGINT NOT NULL REFERENCES trades(trade_id),
+    stage                NVARCHAR(20) NOT NULL CHECK (stage IN ('clearing','confirm')),
+    match_status         NVARCHAR(20) NOT NULL CHECK (match_status IN ('matched','broken','missing')),
+    price_diff_pct       DECIMAL(9,4) NULL,
+    quantity_diff_pct    DECIMAL(9,4) NULL,
+    side_match           BIT NULL,
+    injected_break_type  NVARCHAR(30) NULL,
+    computed_at          DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT uq_reconciliation_trade_stage UNIQUE (trade_id, stage)
+);
+CREATE INDEX ix_reconciliation_status ON reconciliation_results(stage, match_status);

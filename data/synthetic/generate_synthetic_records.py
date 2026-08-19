@@ -98,7 +98,18 @@ def _perturb_price(price: float, rng: random.Random) -> float:
 
 def _perturb_quantity(quantity: float, rng: random.Random) -> float:
     pct = rng.uniform(0.001, 0.02) * rng.choice([-1, 1])
-    return round(max(quantity * (1 + pct), 1e-8), 8)
+    perturbed = round(max(quantity * (1 + pct), 1e-8), 8)
+    if perturbed == round(quantity, 8):
+        # Crypto quantities can already sit at the 1e-8 floor (the
+        # smallest representable unit at this precision) -- a 0.1-2%
+        # relative perturbation of such a value rounds back to the exact
+        # same 8-decimal figure, silently no-op'ing the injected break.
+        # Force a minimal but real, observable difference instead.
+        direction = 1 if pct >= 0 else -1
+        perturbed = round(quantity, 8) + direction * 1e-8
+        if perturbed <= 0:
+            perturbed = quantity + 1e-8
+    return round(perturbed, 8)
 
 
 def _flip_side(side: str) -> str:

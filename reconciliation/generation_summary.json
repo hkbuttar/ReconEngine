@@ -1,0 +1,37 @@
+{
+  "total_trades": 11008,
+  "clearing": {
+    "status_counts": {
+      "matched": 10012,
+      "broken": 769,
+      "missing": 227
+    },
+    "ground_truth_score": {
+      "true_positive_breaks": 769,
+      "false_positive_breaks": 0,
+      "true_negative_clean": 9668,
+      "false_negative_breaks": 0,
+      "accuracy": 1.0
+    }
+  },
+  "confirm": {
+    "status_counts": {
+      "matched": 10078,
+      "broken": 723,
+      "missing": 207
+    },
+    "ground_truth_score": {
+      "true_positive_breaks": 723,
+      "false_positive_breaks": 0,
+      "true_negative_clean": 9747,
+      "false_negative_breaks": 0,
+      "accuracy": 1.0
+    }
+  },
+  "fuzzy_matching": {
+    "orphan_clearing_records": 110,
+    "orphan_clearing_with_candidates": 73,
+    "orphan_confirm_records": 110,
+    "orphan_confirm_with_candidates": 76
+  }
+}
