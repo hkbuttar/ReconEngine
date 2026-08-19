@@ -1,0 +1,16 @@
+{
+  "rule_based": {
+    "n_scored": 22016,
+    "accuracy": 0.999,
+    "n_misses": 21
+  },
+  "ml_xgboost": {
+    "n_scored": 6605,
+    "accuracy": 0.9988,
+    "n_misses": 8
+  },
+  "misses_overlap": {
+    "same_rows_missed_by_both": 8,
+    "note": "Both classifiers miss the same TIMING rows with no lifecycle_events signal (gated before that stage) -- a real information limit, not a modeling gap either approach could close from observable fields alone."
+  }
+}

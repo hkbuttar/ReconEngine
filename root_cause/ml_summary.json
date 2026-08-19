@@ -1,0 +1,115 @@
+{
+  "n_train": 15411,
+  "n_test": 6605,
+  "classes": [
+    "CLEAN",
+    "MISSING_RECORD",
+    "PRICING",
+    "QUANTITY",
+    "REFERENCE_DATA",
+    "TIMING"
+  ],
+  "accuracy": 0.9988,
+  "per_class_report": {
+    "CLEAN": {
+      "precision": 0.9986284930567461,
+      "recall": 1.0,
+      "f1-score": 0.999313775947847,
+      "support": 5825.0
+    },
+    "MISSING_RECORD": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 130.0
+    },
+    "PRICING": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 193.0
+    },
+    "QUANTITY": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 194.0
+    },
+    "REFERENCE_DATA": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 60.0
+    },
+    "TIMING": {
+      "precision": 1.0,
+      "recall": 0.9605911330049262,
+      "f1-score": 0.9798994974874372,
+      "support": 203.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      5825,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      130,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      193,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      194,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      60,
+      0
+    ],
+    [
+      8,
+      0,
+      0,
+      0,
+      0,
+      195
+    ]
+  ],
+  "feature_importance": {
+    "lifecycle_status_breached": 0.19339999556541443,
+    "quantity_diff_pct": 0.18050000071525574,
+    "price_diff_pct": 0.17949999868869781,
+    "lifecycle_status_late": 0.1339000016450882,
+    "match_status_matched": 0.11209999769926071,
+    "side_match": 0.10849999636411667,
+    "lifecycle_status_on_time": 0.08079999685287476,
+    "lifecycle_status_unknown": 0.010700000450015068,
+    "stage_clearing": 0.00039999998989515007,
+    "match_status_broken": 0.0003000000142492354,
+    "match_status_missing": 0.0,
+    "stage_confirm": 0.0
+  }
+}
