@@ -265,3 +265,18 @@ CREATE TABLE audit_log (
     recorded_at   DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
 ) WITH (LEDGER = ON (APPEND_ONLY = ON));
 CREATE INDEX ix_audit_log_event ON audit_log(event_type, event_at);
+
+-- Step 14: alerts triggered by monitoring/alert_rules.py, scanning the
+-- live schema against disclosed thresholds. Mutable (unlike audit_log) --
+-- alerts get acknowledged in real ops, an audit log entry never should.
+CREATE TABLE alerts (
+    alert_id           BIGINT IDENTITY(1,1) PRIMARY KEY,
+    alert_type          NVARCHAR(40)  NOT NULL,
+    severity             NVARCHAR(20)  NOT NULL CHECK (severity IN ('info','warning','critical')),
+    entity_ref            NVARCHAR(60)  NULL,
+    description             NVARCHAR(500) NOT NULL,
+    threshold_breached        NVARCHAR(200) NULL,
+    triggered_at                DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    acknowledged                  BIT NOT NULL DEFAULT 0
+);
+CREATE INDEX ix_alerts_type_severity ON alerts(alert_type, severity, acknowledged);

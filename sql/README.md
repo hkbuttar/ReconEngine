@@ -53,11 +53,15 @@ timestamp suffixes across venues.
 
 ## Files
 
-- `schema.sql` — DDL for all 16 tables, keys, constraints, indexes
+- `schema.sql` — DDL for all 17 tables, keys, constraints, indexes
   (includes `ingestion_audit` from Step 4, `reconciliation_results` from
   Step 5, `root_cause_labels` from Step 6, `invoice_reconciliation` from
   Step 9, `break_aging_daily`/`break_aging_summary` from Step 10,
-  `audit_log` — a native LEDGER table — from Step 11).
+  `audit_log` — a native LEDGER table — from Step 11, `alerts` from
+  Step 14).
+- `monitoring_views.sql` — Step 14's 4 monitoring views (ingestion
+  health, match rate, break aging distribution, invoice discrepancy
+  rate) — see `monitoring/README.md`.
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
 - `views.sql` — views the Qlik data model (Step 15) will load from.

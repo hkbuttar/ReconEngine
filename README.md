@@ -149,7 +149,14 @@ reconengine/
       reported it didn't work**, and diagnosed the actual cause via the
       real execution plan (SQL Server already uses a Hash Match join, not
       a seek — the fix targeted the wrong mechanism). See `performance/README.md`.
-- [ ] Step 14 — Monitoring, Observability & Alerting
+- [x] **Step 14 — Monitoring, Observability & Alerting.** 4 monitoring
+      views (`sql/monitoring_views.sql`) computed live: 90.95%/91.55%
+      match rate, 254 critical-aged breaks, 6.25–7.36% invoice discrepancy
+      rate. `monitoring/alert_rules.py` fires 4 disclosed threshold rules
+      into a mutable `alerts` table — deliberately a higher bar than the
+      break/materiality thresholds themselves, with 2 rules genuinely
+      un-triggered (not faked) since real data doesn't breach them. See
+      `monitoring/README.md`.
 - [ ] Step 15 — Qlik Sense Dashboard
 - [ ] Step 16 — Testing & Validation
 - [ ] Step 17 — Results & Honest Comparison
