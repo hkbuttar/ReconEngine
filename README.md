@@ -111,7 +111,14 @@ reconengine/
       assistive. `llm_assist/nl_query.py` (Sonnet 5) translates questions
       to read-only SQL with two independent safety layers. Both live-
       tested against the real DB and a real API key. See `llm_assist/README.md`.
-- [ ] Step 9 — Invoice Reconciliation
+- [x] **Step 9 — Invoice Reconciliation.** `invoice_recon/generate_invoice.py`
+      computes expected fees from real trade notional against the real,
+      cited fee schedules, compares to a synthetically perturbed
+      "received invoice." Found and fixed two real bugs: a materiality
+      threshold that let 509 genuine discrepancies slip through on
+      tiny-notional trades (fixed with a combined absolute+relative
+      rule), and the same scientific-notation bug as Step 2. Loaded into
+      `invoice_reconciliation`. See `invoice_recon/README.md`.
 - [ ] Step 10 — Multi-Day Rolling Reconciliation with Break Aging
 - [ ] Step 11 — Audit Trail & Regulatory-Format Reporting
 - [ ] Step 12 — Data Lineage Tracking

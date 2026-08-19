@@ -1,0 +1,39 @@
+{
+  "total_trades": 11008,
+  "match_status_counts": {
+    "matched": 10213,
+    "discrepant": 564,
+    "missing": 231
+  },
+  "discrepancy_type_counts": {
+    "none": 10034,
+    "rate_misapplied": 204,
+    "double_billed": 216,
+    "missing_line": 231,
+    "rounding_error": 323
+  },
+  "materiality_threshold_usd": 0.01,
+  "venue_summary": {
+    "kraken": {
+      "expected_total_usd": 73559.44,
+      "actual_total_usd": 74892.26,
+      "trade_count": 1008,
+      "discrepant_count": 63,
+      "net_delta_usd": 1332.82
+    },
+    "coinbase": {
+      "expected_total_usd": 42072.35,
+      "actual_total_usd": 41463.94,
+      "trade_count": 5000,
+      "discrepant_count": 364,
+      "net_delta_usd": -608.41
+    },
+    "binance": {
+      "expected_total_usd": 1444.94,
+      "actual_total_usd": 1415.42,
+      "trade_count": 5000,
+      "discrepant_count": 368,
+      "net_delta_usd": -29.52
+    }
+  }
+}

@@ -193,3 +193,23 @@ CREATE TABLE root_cause_labels (
     CONSTRAINT uq_root_cause_trade_stage UNIQUE (trade_id, stage)
 );
 CREATE INDEX ix_root_cause_category ON root_cause_labels(root_cause_category);
+
+-- Step 9: invoice reconciliation (invoice_recon/generate_invoice.py).
+-- Expected fee computed from real trade notional against real published
+-- fee schedules (data/real/fee_schedules.py); actual_fee_usd is the
+-- synthetically perturbed "received invoice" side. actual_fee_usd/delta_usd
+-- NULL means missing_line (trade never billed at all).
+CREATE TABLE invoice_reconciliation (
+    invoice_line_id       BIGINT IDENTITY(1,1) PRIMARY KEY,
+    trade_id               BIGINT NOT NULL UNIQUE REFERENCES trades(trade_id),
+    venue                   NVARCHAR(20) NOT NULL,
+    notional                DECIMAL(18,8) NOT NULL,
+    taker_fee_bps_applied   DECIMAL(9,4) NOT NULL,
+    expected_fee_usd        DECIMAL(18,8) NOT NULL,
+    actual_fee_usd          DECIMAL(18,8) NULL,
+    delta_usd               DECIMAL(18,8) NULL,
+    match_status            NVARCHAR(20) NOT NULL CHECK (match_status IN ('matched','discrepant','missing')),
+    injected_discrepancy_type NVARCHAR(30) NOT NULL,
+    computed_at              DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+);
+CREATE INDEX ix_invoice_venue_status ON invoice_reconciliation(venue, match_status);
