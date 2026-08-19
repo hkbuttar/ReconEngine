@@ -68,9 +68,10 @@ reconengine/
       (`sql/schema.sql`), stored procedures (`sql/procs.sql`), views
       (`sql/views.sql`), ER diagram (`sql/README.md`). Synthetic
       `clearing_statements`/`exchange_confirms` generated from the real
-      trades (`data/synthetic/generate_synthetic_records.py`). Not yet
-      executed against a live SQL Server instance — see `sql/README.md`
-      "Status" (that's Step 19, Deployment).
+      trades (`data/synthetic/generate_synthetic_records.py`). Validated
+      against a live SQL Server 2022 instance in Docker — all ~11,000
+      real trades plus synthetic clearing/confirm records loaded and
+      queryable end-to-end. See `sql/README.md` "Status".
 - [ ] Step 3 — End-to-End Trade Lifecycle State Machine
 - [ ] Step 4 — Multi-Source Ingestion (ETL)
 - [ ] Step 5 — Reconciliation Matching Engine

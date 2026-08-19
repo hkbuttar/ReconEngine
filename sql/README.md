@@ -2,20 +2,44 @@
 
 ## Status
 
-Schema, stored procedures, and views are written and reviewed but **not
-yet executed against a live SQL Server instance** — no SQL Server
-Express/Azure SQL instance is provisioned in this environment yet. That's
-Step 19 (Deployment). To validate/load now:
+Validated against a live SQL Server 2022 instance (Docker,
+`mcr.microsoft.com/mssql/server:2022-latest`, database `reconengine`).
+Schema, procs, and views all load and run cleanly; all 11,008 real trades
+plus 10,891 synthetic clearing statements and 10,911 synthetic exchange
+confirms are loaded and queryable end-to-end
+(`sql/load_data.sql`). `vw_TradeReconciliationStatus` over the live data:
+92% of trades match cleanly at each stage, the rest split across
+`broken`/`missing` — consistent with the ~88%/12% clean/broken design in
+`data/synthetic/README.md` once orphan rows are accounted for.
+
+This container is dev/throwaway, not a persistent deployment target —
+Step 19 covers standing up a durable instance. To reproduce:
 
 ```bash
-# SQL Server Express in Docker (requires Docker running):
 docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=<your-password>" \
   -p 1433:1433 --name reconengine-sql -d mcr.microsoft.com/mssql/server:2022-latest
 
-sqlcmd -S localhost -U sa -P '<your-password>' -i sql/schema.sql
-sqlcmd -S localhost -U sa -P '<your-password>' -i sql/procs.sql
-sqlcmd -S localhost -U sa -P '<your-password>' -i sql/views.sql
+docker cp sql/schema.sql reconengine-sql:/tmp/schema.sql
+docker cp sql/procs.sql reconengine-sql:/tmp/procs.sql
+docker cp sql/views.sql reconengine-sql:/tmp/views.sql
+docker exec reconengine-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '<your-password>' -C -Q "CREATE DATABASE reconengine;"
+docker exec reconengine-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '<your-password>' -C -d reconengine -i /tmp/schema.sql
+docker exec reconengine-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '<your-password>' -C -d reconengine -i /tmp/procs.sql
+docker exec reconengine-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '<your-password>' -C -d reconengine -i /tmp/views.sql
+
+# then load real + synthetic data (see sql/load_data.sql header for the
+# 3 required CSV copies into the container's /tmp/ first)
+docker exec reconengine-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '<your-password>' -C -d reconengine -i /tmp/load_data.sql
 ```
+
+Two bugs found and fixed only by actually running this against a live
+instance (both disclosed here since they'd otherwise be invisible in the
+DDL alone): `BULK INSERT`'s `ROWTERMINATOR` had to be `0x0d0a`, not
+`0x0a` — Python's `csv` module writes `\r\n` by default, which silently
+corrupted whichever column landed last in each row; and `DATETIME2` casts
+on the real trades' `traded_at` needed to go through
+`CONVERT(DATETIMEOFFSET, ..., 127)` first to handle the mixed `Z`/`+00:00`
+timestamp suffixes across venues.
 
 ## Files
 
