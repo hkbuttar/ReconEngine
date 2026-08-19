@@ -21,16 +21,18 @@ reconciliation, and AI-assisted workflow automation.
 See [`data/real/README.md`](data/real/README.md) for the precise
 real-vs-synthetic disclosure. Summary:
 
-- **Real**: 11,000 real trades pulled live from Binance, Coinbase, and
+- **Real**: ~11,000 real trades pulled live from Binance, Coinbase, and
   Kraken's public market-data APIs (`data/real/trades_real.csv`), real
   published maker/taker fee schedules for those three venues
   (`data/real/fee_schedules.py`), and the real US equities T+1 settlement
   convention (`data/real/settlement_rules.py`).
-- **Synthetic (disclosed)**: only the *clearing statement* and *exchange
-  confirmation* records, and the specific discrepancies between them and
-  the real trade record, since no public source publishes internal
-  system-to-system trade mismatches. Built in Step 2 onward, under
-  `data/synthetic/`.
+- **Synthetic (disclosed)**: `clearing_statements.csv` and
+  `exchange_confirms.csv` under `data/synthetic/`, derived from the real
+  trades above with ~13% of rows per stage carrying a labeled, injected
+  discrepancy (missing/orphan/price/quantity/timing/side breaks) — see
+  [`data/synthetic/README.md`](data/synthetic/README.md) for exact rates
+  and rationale. No public source publishes internal system-to-system
+  trade mismatches, so this is the one generated layer in the project.
 
 ## Repo structure
 
@@ -62,7 +64,13 @@ reconengine/
 - [x] **Step 1 — Environment & Data Acquisition.** Real trade data pulled
       (`ingestion/acquire_real_trades.py`), real fee schedules and
       settlement rules documented (`data/real/`). See disclosure above.
-- [ ] Step 2 — SQL Server Schema Design
+- [x] **Step 2 — SQL Server Schema Design.** Full T-SQL DDL for 9 tables
+      (`sql/schema.sql`), stored procedures (`sql/procs.sql`), views
+      (`sql/views.sql`), ER diagram (`sql/README.md`). Synthetic
+      `clearing_statements`/`exchange_confirms` generated from the real
+      trades (`data/synthetic/generate_synthetic_records.py`). Not yet
+      executed against a live SQL Server instance — see `sql/README.md`
+      "Status" (that's Step 19, Deployment).
 - [ ] Step 3 — End-to-End Trade Lifecycle State Machine
 - [ ] Step 4 — Multi-Source Ingestion (ETL)
 - [ ] Step 5 — Reconciliation Matching Engine

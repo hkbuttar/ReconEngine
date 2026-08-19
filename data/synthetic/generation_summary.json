@@ -1,0 +1,25 @@
+{
+  "real_trades": 11008,
+  "clearing_statements": {
+    "total_rows": 10891,
+    "by_break_type": {
+      "none": 9668,
+      "price_mismatch": 313,
+      "timing_breach": 344,
+      "quantity_mismatch": 348,
+      "side_mismatch": 108,
+      "orphan": 110
+    }
+  },
+  "exchange_confirms": {
+    "total_rows": 10911,
+    "by_break_type": {
+      "none": 9747,
+      "quantity_mismatch": 300,
+      "timing_breach": 331,
+      "price_mismatch": 330,
+      "side_mismatch": 93,
+      "orphan": 110
+    }
+  }
+}
