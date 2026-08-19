@@ -1,0 +1,19 @@
+source_table,source_pk,target_table,target_pk,transform_step,is_synthetic_source
+trades_real.csv,0,trades,0,ingestion/run_pipeline.py (Step 4),False
+trades,0,clearing_statements,0,data/synthetic/generate_synthetic_records.py (Step 2),False
+trades,0,exchange_confirms,0,data/synthetic/generate_synthetic_records.py (Step 2),False
+trades,0,lifecycle_events,0,lifecycle/state_machine.py (Step 3),False
+clearing_statements,0,lifecycle_events,0,lifecycle/state_machine.py (Step 3),True
+exchange_confirms,0,lifecycle_events,0,lifecycle/state_machine.py (Step 3),True
+lifecycle_events,0,settlements,0,lifecycle/state_machine.py (Step 3),True
+lifecycle_events,0,accounting_feed,0,lifecycle/state_machine.py (Step 3),True
+trades,0,reconciliation_results,0,reconciliation/matching_engine.py (Step 5),False
+clearing_statements,0,reconciliation_results,0,reconciliation/matching_engine.py (Step 5),True
+exchange_confirms,0,reconciliation_results,0,reconciliation/matching_engine.py (Step 5),True
+reconciliation_results,0,root_cause_labels,0,root_cause/taxonomy.py (Step 6),True
+lifecycle_events,0,root_cause_labels,0,root_cause/taxonomy.py (Step 6),True
+trades,0,invoice_reconciliation,0,invoice_recon/generate_invoice.py (Step 9),False
+root_cause_labels,0,break_aging_daily,0,aging/break_aging.py (Step 10),True
+root_cause_labels,0,break_aging_summary,0,aging/break_aging.py (Step 10),True
+break_aging_summary,0,audit_log,0,audit_trail/build_audit_log.py (Step 11),True
+invoice_reconciliation,0,audit_log,0,audit_trail/build_audit_log.py (Step 11),True

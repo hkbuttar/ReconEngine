@@ -134,7 +134,13 @@ reconengine/
       history). Populated with 5,746 real pipeline events. Exception
       report structurally grounded in SWIFT MT548's real coded reason-field
       precedent, verified live. See `audit_trail/README.md`.
-- [ ] Step 12 — Data Lineage Tracking
+- [x] **Step 12 — Data Lineage Tracking.** Explicitly reuses MarketForge's
+      validated design (asset-level graph, not row/column-level, disclosed
+      scope decision): `lineage/graph.py`'s 13-node/18-edge DAG, exported
+      as durable JSON and loaded into `lineage_events`. `lineage/trace.py`
+      closes the row-level gap on demand — live-tested, walks one real
+      trade's actual data through all 10 tables with correct real/synthetic
+      labeling at every hop. See `lineage/README.md`.
 - [ ] Step 13 — Volume & Performance Testing
 - [ ] Step 14 — Monitoring, Observability & Alerting
 - [ ] Step 15 — Qlik Sense Dashboard

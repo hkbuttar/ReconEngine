@@ -80,6 +80,8 @@ timestamp suffixes across venues.
 - `ingest_audit_log.sql` — loads Step 11's audit trail
   (`audit_trail/build_audit_log.py`) into `audit_log` (append-only, no
   anti-join — see `audit_trail/README.md`).
+- `ingest_lineage.sql` — loads Step 12's lineage graph
+  (`lineage/build_lineage.py`) into `lineage_events` (18 table-level edges).
 
 ## ER diagram
 

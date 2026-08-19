@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-08-19T19:43:16.469466+00:00",
+  "nodes": [
+    {
+      "table": "trades_real.csv",
+      "is_synthetic": false,
+      "description": "real trades pulled live from venue APIs (Step 1)"
+    },
+    {
+      "table": "trades",
+      "is_synthetic": false,
+      "description": "real trades, ingested (Step 4)"
+    },
+    {
+      "table": "clearing_statements",
+      "is_synthetic": true,
+      "description": "synthetic, derived from trades (Step 2)"
+    },
+    {
+      "table": "exchange_confirms",
+      "is_synthetic": true,
+      "description": "synthetic, derived from trades (Step 2)"
+    },
+    {
+      "table": "lifecycle_events",
+      "is_synthetic": true,
+      "description": "derived from trades + synthetic records (Step 3); timestamps are a mix of real (trades) and synthetic (clearing/confirm) inputs"
+    },
+    {
+      "table": "settlements",
+      "is_synthetic": true,
+      "description": "derived from trades + lifecycle_events (Step 3)"
+    },
+    {
+      "table": "accounting_feed",
+      "is_synthetic": true,
+      "description": "derived from trades + lifecycle_events (Step 3)"
+    },
+    {
+      "table": "reconciliation_results",
+      "is_synthetic": true,
+      "description": "derived from trades + clearing/confirm (Step 5)"
+    },
+    {
+      "table": "root_cause_labels",
+      "is_synthetic": true,
+      "description": "derived from reconciliation_results + lifecycle_events (Step 6)"
+    },
+    {
+      "table": "invoice_reconciliation",
+      "is_synthetic": true,
+      "description": "derived from trades + real fee schedules; actual_fee_usd side is synthetic (Step 9)"
+    },
+    {
+      "table": "break_aging_daily",
+      "is_synthetic": true,
+      "description": "derived from root_cause_labels (Step 10)"
+    },
+    {
+      "table": "break_aging_summary",
+      "is_synthetic": true,
+      "description": "derived from root_cause_labels (Step 10)"
+    },
+    {
+      "table": "audit_log",
+      "is_synthetic": true,
+      "description": "derived from ingestion_audit + break_aging_summary + invoice_reconciliation (Step 11)"
+    }
+  ],
+  "edges": [
+    {
+      "source_table": "trades_real.csv",
+      "target_table": "trades",
+      "transform_step": "ingestion/run_pipeline.py (Step 4)",
+      "key_field": "native_trade_id"
+    },
+    {
+      "source_table": "trades",
+      "target_table": "clearing_statements",
+      "transform_step": "data/synthetic/generate_synthetic_records.py (Step 2)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "trades",
+      "target_table": "exchange_confirms",
+      "transform_step": "data/synthetic/generate_synthetic_records.py (Step 2)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "trades",
+      "target_table": "lifecycle_events",
+      "transform_step": "lifecycle/state_machine.py (Step 3)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "clearing_statements",
+      "target_table": "lifecycle_events",
+      "transform_step": "lifecycle/state_machine.py (Step 3)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "exchange_confirms",
+      "target_table": "lifecycle_events",
+      "transform_step": "lifecycle/state_machine.py (Step 3)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "lifecycle_events",
+      "target_table": "settlements",
+      "transform_step": "lifecycle/state_machine.py (Step 3)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "lifecycle_events",
+      "target_table": "accounting_feed",
+      "transform_step": "lifecycle/state_machine.py (Step 3)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "trades",
+      "target_table": "reconciliation_results",
+      "transform_step": "reconciliation/matching_engine.py (Step 5)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "clearing_statements",
+      "target_table": "reconciliation_results",
+      "transform_step": "reconciliation/matching_engine.py (Step 5)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "exchange_confirms",
+      "target_table": "reconciliation_results",
+      "transform_step": "reconciliation/matching_engine.py (Step 5)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "reconciliation_results",
+      "target_table": "root_cause_labels",
+      "transform_step": "root_cause/taxonomy.py (Step 6)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "lifecycle_events",
+      "target_table": "root_cause_labels",
+      "transform_step": "root_cause/taxonomy.py (Step 6)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "trades",
+      "target_table": "invoice_reconciliation",
+      "transform_step": "invoice_recon/generate_invoice.py (Step 9)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "root_cause_labels",
+      "target_table": "break_aging_daily",
+      "transform_step": "aging/break_aging.py (Step 10)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "root_cause_labels",
+      "target_table": "break_aging_summary",
+      "transform_step": "aging/break_aging.py (Step 10)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "break_aging_summary",
+      "target_table": "audit_log",
+      "transform_step": "audit_trail/build_audit_log.py (Step 11)",
+      "key_field": "trade_id"
+    },
+    {
+      "source_table": "invoice_reconciliation",
+      "target_table": "audit_log",
+      "transform_step": "audit_trail/build_audit_log.py (Step 11)",
+      "key_field": "trade_id"
+    }
+  ]
+}
