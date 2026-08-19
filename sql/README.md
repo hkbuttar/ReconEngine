@@ -53,10 +53,19 @@ timestamp suffixes across venues.
 
 ## Files
 
-- `schema.sql` — DDL for all 9 tables, keys, constraints, indexes.
+- `schema.sql` — DDL for all 10 tables, keys, constraints, indexes
+  (includes `ingestion_audit`, added in Step 4).
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
 - `views.sql` — views the Qlik data model (Step 15) will load from.
+- `load_data.sql` / `load_lifecycle.sql` — Step 2/3's one-shot bulk loads
+  (permanent staging tables, no validation/audit) — still used to
+  reload derived lifecycle/settlement/accounting data after a Step 4 demo.
+- `ingest_trades.sql` / `ingest_clearing.sql` / `ingest_confirms.sql` —
+  Step 4's per-source loads (session-scoped temp tables, idempotent
+  anti-join inserts), driven by `ingestion/run_pipeline.py` — see
+  `ingestion/README.md` for the validation + audit trail wrapped around
+  these.
 
 ## ER diagram
 

@@ -135,3 +135,23 @@ CREATE TABLE lineage_events (
     recorded_at          DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
 );
 CREATE INDEX ix_lineage_source ON lineage_events(source_table, source_pk);
+
+-- Step 4: one row per ingestion run (ingestion/run_pipeline.py), tracking
+-- pre-load data-quality outcomes alongside actual DB load counts. Feeds
+-- Step 12 (lineage) and Step 14 (monitoring: ingestion success/failure rate).
+CREATE TABLE ingestion_audit (
+    audit_id      BIGINT IDENTITY(1,1) PRIMARY KEY,
+    source_name   NVARCHAR(60)  NOT NULL,
+    source_file   NVARCHAR(200) NOT NULL,
+    started_at    DATETIME2     NOT NULL,
+    completed_at  DATETIME2     NULL,
+    status        NVARCHAR(20)  NOT NULL DEFAULT 'running'
+        CHECK (status IN ('running','succeeded','failed')),
+    rows_read     INT NOT NULL DEFAULT 0,
+    rows_valid    INT NOT NULL DEFAULT 0,
+    rows_rejected INT NOT NULL DEFAULT 0,
+    rows_loaded   INT NOT NULL DEFAULT 0,
+    quality_check_summary NVARCHAR(MAX) NULL,
+    error_message NVARCHAR(MAX) NULL
+);
+CREATE INDEX ix_ingestion_audit_source ON ingestion_audit(source_name, started_at);

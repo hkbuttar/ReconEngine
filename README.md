@@ -77,7 +77,14 @@ reconengine/
       trade from the Step 2 synthetic records, gated (not optimistic) on
       confirmation; validated against the live DB — 431/11,008 trades
       correctly stall before `posted_to_accounting`. See `lifecycle/README.md`.
-- [ ] Step 4 — Multi-Source Ingestion (ETL)
+- [x] **Step 4 — Multi-Source Ingestion (ETL).** `ingestion/run_pipeline.py`
+      validates (schema/type/duplicate/referential checks) then loads each
+      of the 3 sources independently, idempotently, with a full
+      `ingestion_audit` trail. Verified live: clean run loads
+      11,008/10,891/10,911 rows; immediate rerun loads 0 (idempotent);
+      unit-checked that bad rows (dup keys, bad side, negative price,
+      unparseable date, dangling ref) are actually rejected. See
+      `ingestion/README.md`.
 - [ ] Step 5 — Reconciliation Matching Engine
 - [ ] Step 6 — Industry-Grounded Root-Cause Taxonomy
 - [ ] Step 7 — Rule-Based & ML-Assisted Root-Cause Classification
