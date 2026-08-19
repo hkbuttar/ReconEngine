@@ -104,7 +104,13 @@ reconengine/
       99.88% (6,605-row test split) — both fail on the exact same 8 rows,
       fully explained (not hand-waved) as two distinct, verified causes.
       See `root_cause/README.md`'s "Classification" section.
-- [ ] Step 8 — LLM-Assisted Break Explanation & Natural-Language Query
+- [x] **Step 8 — LLM-Assisted Break Explanation & Natural-Language Query.**
+      `llm_assist/break_explainer.py` (Haiku 4.5) explains genuinely
+      ambiguous cases (multi-candidate fuzzy matches, timing-within-SLA
+      edge cases) from structured facts only, always disclosed as
+      assistive. `llm_assist/nl_query.py` (Sonnet 5) translates questions
+      to read-only SQL with two independent safety layers. Both live-
+      tested against the real DB and a real API key. See `llm_assist/README.md`.
 - [ ] Step 9 — Invoice Reconciliation
 - [ ] Step 10 — Multi-Day Rolling Reconciliation with Break Aging
 - [ ] Step 11 — Audit Trail & Regulatory-Format Reporting
