@@ -1,0 +1,15 @@
+{
+  "total_breaks": 2601,
+  "observation_window_days": 14,
+  "resolution_outcome_counts": {
+    "1_2_days": 795,
+    "3_7_days": 513,
+    "same_day": 1039,
+    "unresolved": 254
+  },
+  "still_open_at_window_end": 254,
+  "tier_counts_among_still_open": {
+    "TIER4_CRITICAL_AGED": 254
+  },
+  "daily_snapshot_rows": 7579
+}

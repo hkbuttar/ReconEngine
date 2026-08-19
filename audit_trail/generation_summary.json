@@ -1,0 +1,9 @@
+{
+  "total_events": 5746,
+  "by_event_type": {
+    "BREAK_IDENTIFIED": 2601,
+    "BREAK_RESOLVED": 2347,
+    "INVOICE_DISCREPANCY_IDENTIFIED": 795,
+    "INGESTION_RUN": 3
+  }
+}

@@ -119,8 +119,21 @@ reconengine/
       tiny-notional trades (fixed with a combined absolute+relative
       rule), and the same scientific-notation bug as Step 2. Loaded into
       `invoice_reconciliation`. See `invoice_recon/README.md`.
-- [ ] Step 10 — Multi-Day Rolling Reconciliation with Break Aging
-- [ ] Step 11 — Audit Trail & Regulatory-Format Reporting
+- [x] **Step 10 — Multi-Day Rolling Reconciliation with Break Aging.**
+      `aging/break_aging.py` runs all 2,601 breaks through 15 daily
+      cycles over real calendar dates (disclosed constraint: real trade
+      data spans one real day, so dates are real but used as simulated
+      checkpoints), with a disclosed synthetic resolution-date
+      distribution and escalation tiers adapted from Reg SHO Rule 204.
+      Live rolling trend: 1,562 → 254 open breaks, plateauing exactly at
+      the disclosed 10% never-resolved rate. See `aging/README.md`.
+- [x] **Step 11 — Audit Trail & Regulatory-Format Reporting.**
+      `audit_log` is a SQL Server 2022 native append-only LEDGER table —
+      immutability enforced by the engine itself, live-verified (`UPDATE`/
+      `DELETE` both fail with error 37359, even `DROP TABLE` preserves
+      history). Populated with 5,746 real pipeline events. Exception
+      report structurally grounded in SWIFT MT548's real coded reason-field
+      precedent, verified live. See `audit_trail/README.md`.
 - [ ] Step 12 — Data Lineage Tracking
 - [ ] Step 13 — Volume & Performance Testing
 - [ ] Step 14 — Monitoring, Observability & Alerting

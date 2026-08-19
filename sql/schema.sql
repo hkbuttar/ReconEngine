@@ -213,3 +213,55 @@ CREATE TABLE invoice_reconciliation (
     computed_at              DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
 );
 CREATE INDEX ix_invoice_venue_status ON invoice_reconciliation(venue, match_status);
+
+-- Step 10: multi-day rolling reconciliation with break aging
+-- (aging/break_aging.py). break_aging_daily is the rolling view (one row
+-- per break per observation date while still open); break_aging_summary
+-- is the aggregate view (one row per break, final resolution outcome).
+-- origin_date/observation_date are real calendar dates used as simulated
+-- "as of" checkpoints -- see aging/break_aging.py's module docstring for
+-- why (the real trade data spans a single real day).
+CREATE TABLE break_aging_daily (
+    snapshot_id          BIGINT IDENTITY(1,1) PRIMARY KEY,
+    trade_id              BIGINT NOT NULL REFERENCES trades(trade_id),
+    stage                 NVARCHAR(20) NOT NULL,
+    root_cause_category   NVARCHAR(30) NOT NULL,
+    origin_date            DATE NOT NULL,
+    observation_date       DATE NOT NULL,
+    age_days                INT NOT NULL,
+    escalation_tier          NVARCHAR(30) NOT NULL,
+    CONSTRAINT uq_aging_daily UNIQUE (trade_id, stage, observation_date)
+);
+CREATE INDEX ix_aging_daily_observation ON break_aging_daily(observation_date, escalation_tier);
+
+CREATE TABLE break_aging_summary (
+    summary_id                   BIGINT IDENTITY(1,1) PRIMARY KEY,
+    trade_id                      BIGINT NOT NULL REFERENCES trades(trade_id),
+    stage                         NVARCHAR(20) NOT NULL,
+    root_cause_category           NVARCHAR(30) NOT NULL,
+    origin_date                    DATE NOT NULL,
+    resolved_date                   DATE NULL,
+    resolution_days                 INT NULL,
+    still_open_at_window_end          BIT NOT NULL,
+    max_escalation_tier_reached        NVARCHAR(30) NOT NULL,
+    CONSTRAINT uq_aging_summary_trade_stage UNIQUE (trade_id, stage)
+);
+CREATE INDEX ix_aging_summary_open ON break_aging_summary(still_open_at_window_end, max_escalation_tier_reached);
+
+-- Step 11: immutable, append-only audit log -- architecturally enforced
+-- via SQL Server 2022's native LEDGER feature, not an application-level
+-- convention. Live-verified in this project (sql/README.md "Status"):
+-- UPDATE and DELETE against an append-only ledger table both fail with
+-- engine error 37359 ("Updates are not allowed for the append only
+-- Ledger table"), and even DROP TABLE doesn't erase history -- SQL
+-- Server renames it to a tracked MSSQL_DroppedLedgerTable_* system table.
+CREATE TABLE audit_log (
+    audit_log_id  BIGINT IDENTITY(1,1) PRIMARY KEY,
+    event_type    NVARCHAR(40)  NOT NULL,
+    entity_type   NVARCHAR(40)  NOT NULL,
+    entity_ref    NVARCHAR(60)  NULL,
+    event_at      DATETIME2     NOT NULL,
+    details       NVARCHAR(MAX) NULL,
+    recorded_at   DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
+) WITH (LEDGER = ON (APPEND_ONLY = ON));
+CREATE INDEX ix_audit_log_event ON audit_log(event_type, event_at);

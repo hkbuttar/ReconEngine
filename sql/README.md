@@ -53,10 +53,11 @@ timestamp suffixes across venues.
 
 ## Files
 
-- `schema.sql` — DDL for all 13 tables, keys, constraints, indexes
+- `schema.sql` — DDL for all 16 tables, keys, constraints, indexes
   (includes `ingestion_audit` from Step 4, `reconciliation_results` from
   Step 5, `root_cause_labels` from Step 6, `invoice_reconciliation` from
-  Step 9).
+  Step 9, `break_aging_daily`/`break_aging_summary` from Step 10,
+  `audit_log` — a native LEDGER table — from Step 11).
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
 - `views.sql` — views the Qlik data model (Step 15) will load from.
@@ -74,6 +75,11 @@ timestamp suffixes across venues.
   (`root_cause/taxonomy.py`) into `root_cause_labels`.
 - `ingest_invoice.sql` — loads Step 9's invoice reconciliation
   (`invoice_recon/generate_invoice.py`) into `invoice_reconciliation`.
+- `ingest_aging.sql` — loads Step 10's break aging
+  (`aging/break_aging.py`) into `break_aging_daily`/`break_aging_summary`.
+- `ingest_audit_log.sql` — loads Step 11's audit trail
+  (`audit_trail/build_audit_log.py`) into `audit_log` (append-only, no
+  anti-join — see `audit_trail/README.md`).
 
 ## ER diagram
 
