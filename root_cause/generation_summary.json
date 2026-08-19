@@ -1,0 +1,18 @@
+{
+  "total_labeled": 22016,
+  "by_stage_category": {
+    "clearing/CLEAN": 9668,
+    "clearing/MISSING_RECORD": 227,
+    "clearing/PRICING": 313,
+    "clearing/QUANTITY": 348,
+    "clearing/REFERENCE_DATA": 108,
+    "clearing/TIMING": 344,
+    "confirm/CLEAN": 9747,
+    "confirm/MISSING_RECORD": 207,
+    "confirm/PRICING": 330,
+    "confirm/QUANTITY": 300,
+    "confirm/REFERENCE_DATA": 93,
+    "confirm/TIMING": 331
+  },
+  "timing_issue_count": 654
+}

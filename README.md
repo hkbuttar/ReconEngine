@@ -92,7 +92,12 @@ reconengine/
       bug found by that scoring), and fuzzy-matches orphan records on a
       composite key. Loaded into `reconciliation_results`. See
       `reconciliation/README.md`.
-- [ ] Step 6 — Industry-Grounded Root-Cause Taxonomy
+- [x] **Step 6 — Industry-Grounded Root-Cause Taxonomy.** `root_cause/taxonomy.py`
+      defines 8 categories cited to FIX Protocol (`OrdRejReason`,
+      `ExecRestatementReason`) verified live against fixtrading.org, plus
+      the Step 1 SEC T+1 citation; crosswalks Step 5/3's signals onto them.
+      Loaded into `root_cause_labels` — this is Step 7's ground truth.
+      See `root_cause/README.md`.
 - [ ] Step 7 — Rule-Based & ML-Assisted Root-Cause Classification
 - [ ] Step 8 — LLM-Assisted Break Explanation & Natural-Language Query
 - [ ] Step 9 — Invoice Reconciliation

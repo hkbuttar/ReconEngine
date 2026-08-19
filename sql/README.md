@@ -53,9 +53,9 @@ timestamp suffixes across venues.
 
 ## Files
 
-- `schema.sql` — DDL for all 11 tables, keys, constraints, indexes
+- `schema.sql` — DDL for all 12 tables, keys, constraints, indexes
   (includes `ingestion_audit` from Step 4, `reconciliation_results` from
-  Step 5).
+  Step 5, `root_cause_labels` from Step 6).
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
 - `views.sql` — views the Qlik data model (Step 15) will load from.
@@ -69,6 +69,8 @@ timestamp suffixes across venues.
   these.
 - `ingest_reconciliation.sql` — loads Step 5's matching engine output
   (`reconciliation/matching_engine.py`) into `reconciliation_results`.
+- `ingest_root_cause.sql` — loads Step 6's taxonomy crosswalk
+  (`root_cause/taxonomy.py`) into `root_cause_labels`.
 
 ## ER diagram
 

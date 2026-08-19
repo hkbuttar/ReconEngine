@@ -176,3 +176,20 @@ CREATE TABLE reconciliation_results (
     CONSTRAINT uq_reconciliation_trade_stage UNIQUE (trade_id, stage)
 );
 CREATE INDEX ix_reconciliation_status ON reconciliation_results(stage, match_status);
+
+-- Step 6: industry-grounded root-cause labels (root_cause/taxonomy.py),
+-- crosswalked from reconciliation_results + lifecycle_events. Ground
+-- truth for Step 7's rule-based vs. ML classifier comparison.
+CREATE TABLE root_cause_labels (
+    label_id            BIGINT IDENTITY(1,1) PRIMARY KEY,
+    trade_id             BIGINT NOT NULL REFERENCES trades(trade_id),
+    stage                NVARCHAR(20) NOT NULL CHECK (stage IN ('clearing','confirm')),
+    root_cause_category  NVARCHAR(30) NOT NULL,
+    has_timing_issue     BIT NOT NULL,
+    match_status         NVARCHAR(20) NOT NULL,
+    injected_break_type  NVARCHAR(30) NULL,
+    lifecycle_status      NVARCHAR(20) NULL,
+    computed_at           DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT uq_root_cause_trade_stage UNIQUE (trade_id, stage)
+);
+CREATE INDEX ix_root_cause_category ON root_cause_labels(root_cause_category);
