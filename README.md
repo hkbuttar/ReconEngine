@@ -72,7 +72,11 @@ reconengine/
       against a live SQL Server 2022 instance in Docker — all ~11,000
       real trades plus synthetic clearing/confirm records loaded and
       queryable end-to-end. See `sql/README.md` "Status".
-- [ ] Step 3 — End-to-End Trade Lifecycle State Machine
+- [x] **Step 3 — End-to-End Trade Lifecycle State Machine.**
+      `lifecycle/state_machine.py` derives all 5 stages for every real
+      trade from the Step 2 synthetic records, gated (not optimistic) on
+      confirmation; validated against the live DB — 431/11,008 trades
+      correctly stall before `posted_to_accounting`. See `lifecycle/README.md`.
 - [ ] Step 4 — Multi-Source Ingestion (ETL)
 - [ ] Step 5 — Reconciliation Matching Engine
 - [ ] Step 6 — Industry-Grounded Root-Cause Taxonomy

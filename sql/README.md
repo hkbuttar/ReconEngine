@@ -13,7 +13,17 @@ confirms are loaded and queryable end-to-end
 `data/synthetic/README.md` once orphan rows are accounted for.
 
 This container is dev/throwaway, not a persistent deployment target —
-Step 19 covers standing up a durable instance. To reproduce:
+Step 19 covers standing up a durable instance.
+
+**Image choice**: `mcr.microsoft.com/mssql/server:2022-latest`, run under
+x86 emulation on this Apple Silicon host (works, just slower to start).
+`mcr.microsoft.com/azure-sql-edge:latest` (native ARM64) was tried as a
+faster alternative and crashes immediately and reproducibly on startup in
+this environment ("This program has encountered a fatal error and cannot
+continue running", confirmed on two separate attempts) — consistent with
+Microsoft having retired Azure SQL Edge in 2025. Not worth retrying.
+
+To reproduce:
 
 ```bash
 docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=<your-password>" \

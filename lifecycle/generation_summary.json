@@ -1,0 +1,33 @@
+{
+  "total_trades": 11008,
+  "stage_reached_counts": {
+    "captured": 11008,
+    "sent_to_clearing": 11008,
+    "confirmed": 10801,
+    "settled": 10577,
+    "posted_to_accounting": 10577
+  },
+  "status_by_stage": {
+    "captured": {
+      "on_time": 11008
+    },
+    "sent_to_clearing": {
+      "on_time": 11008
+    },
+    "confirmed": {
+      "on_time": 10470,
+      "breached": 329,
+      "late": 2
+    },
+    "settled": {
+      "on_time": 10254,
+      "breached": 171,
+      "late": 152
+    },
+    "posted_to_accounting": {
+      "on_time": 10577
+    }
+  },
+  "settlements": 10577,
+  "accounting_entries": 10577
+}
