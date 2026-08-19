@@ -1,0 +1,7 @@
+{
+  "real_trades_source": 11008,
+  "target_count": 200000,
+  "generated_count": 200000,
+  "replication_factor": 18.2,
+  "simulated_day": "2026-08-19"
+}

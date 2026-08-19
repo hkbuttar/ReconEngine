@@ -141,7 +141,14 @@ reconengine/
       closes the row-level gap on demand — live-tested, walks one real
       trade's actual data through all 10 tables with correct real/synthetic
       labeling at every hop. See `lineage/README.md`.
-- [ ] Step 13 — Volume & Performance Testing
+- [x] **Step 13 — Volume & Performance Testing.** Scaled real trade data
+      to 200,000 trades via disclosed replication (real price/quantity/side,
+      synthetic ids). Matching engine: 452,610 trades/sec (not the real
+      bottleneck). SQL load: ~400K rows in ~3.0s server-side. Found a real
+      2.5× CPU cost in the production join pattern, tested a fix, **honestly
+      reported it didn't work**, and diagnosed the actual cause via the
+      real execution plan (SQL Server already uses a Hash Match join, not
+      a seek — the fix targeted the wrong mechanism). See `performance/README.md`.
 - [ ] Step 14 — Monitoring, Observability & Alerting
 - [ ] Step 15 — Qlik Sense Dashboard
 - [ ] Step 16 — Testing & Validation

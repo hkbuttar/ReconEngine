@@ -1,0 +1,11 @@
+{
+  "n_trades": 200000,
+  "n_classifications": 400000,
+  "csv_load_seconds": 0.897,
+  "index_build_seconds": 0.0587,
+  "matching_seconds": 0.4419,
+  "throughput_trades_per_sec": 452609.9,
+  "throughput_classifications_per_sec": 905219.9,
+  "extrapolated_capacity_trades_per_day": 39105499452,
+  "extrapolated_capacity_trades_per_day_millions": 39105.5
+}

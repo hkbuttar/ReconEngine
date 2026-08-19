@@ -82,6 +82,10 @@ timestamp suffixes across venues.
   anti-join — see `audit_trail/README.md`).
 - `ingest_lineage.sql` — loads Step 12's lineage graph
   (`lineage/build_lineage.py`) into `lineage_events` (18 table-level edges).
+- `perf_schema.sql` / `perf_load.sql` / `perf_load_optimized.sql` —
+  Step 13's standalone `perf_*` performance-testing tables and load
+  benchmarks (separate from the live schema's real data). See
+  `performance/README.md`.
 
 ## ER diagram
 
