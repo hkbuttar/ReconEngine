@@ -288,7 +288,10 @@ data, not as a benchmark for any real operations team to compare against.
       measured throughput, lineage completeness — plus a plain statement
       of what's real vs. disclosed-synthetic and what that boundary means
       for how far the results generalize. See "Results & Honest
-      Comparison" above.
+      Comparison" above, and `notebooks/research.ipynb` for the same
+      findings as an executable notebook (41 cells, 0 errors,
+      independently verified end to end) plus a dedicated section
+      cataloging every real bug found and fixed across the build.
 - [ ] Backend (FastAPI)
 - [ ] Deployment
 - [ ] README (this file, expanded with Results/Limitations/Future Work)
