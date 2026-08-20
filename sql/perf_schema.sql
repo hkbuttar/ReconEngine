@@ -1,4 +1,4 @@
--- Step 13: standalone performance-testing tables, structurally identical
+-- Standalone performance-testing tables, structurally identical
 -- to trades/clearing_statements/reconciliation_results but namespaced
 -- perf_* so volume testing never touches the live project data.
 

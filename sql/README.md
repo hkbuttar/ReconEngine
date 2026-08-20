@@ -1,4 +1,4 @@
-# sql/ — SQL Server Schema Design (Step 2)
+# sql/ — SQL Server Schema Design
 
 ## Status
 
@@ -13,7 +13,7 @@ confirms are loaded and queryable end-to-end
 `data/synthetic/README.md` once orphan rows are accounted for.
 
 This container is dev/throwaway, not a persistent deployment target —
-Step 19 covers standing up a durable instance.
+covers standing up a durable instance.
 
 **Image choice**: `mcr.microsoft.com/mssql/server:2022-latest`, run under
 x86 emulation on this Apple Silicon host (works, just slower to start).
@@ -54,40 +54,39 @@ timestamp suffixes across venues.
 ## Files
 
 - `schema.sql` — DDL for all 17 tables, keys, constraints, indexes
-  (includes `ingestion_audit` from Step 4, `reconciliation_results` from
-  Step 5, `root_cause_labels` from Step 6, `invoice_reconciliation` from
-  Step 9, `break_aging_daily`/`break_aging_summary` from Step 10,
-  `audit_log` — a native LEDGER table — from Step 11, `alerts` from
-  Step 14).
-- `monitoring_views.sql` — Step 14's 4 monitoring views (ingestion
+  (includes `ingestion_audit`, `reconciliation_results`,
+  `root_cause_labels`, `invoice_reconciliation`,
+  `break_aging_daily`/`break_aging_summary`, `audit_log` — a native
+  LEDGER table — and `alerts`).
+- `monitoring_views.sql` — 4 monitoring views (ingestion
   health, match rate, break aging distribution, invoice discrepancy
   rate) — see `monitoring/README.md`.
 - `procs.sql` — stored procedures for common reconciliation lookups
   (unmatched records, field mismatches, position recompute).
-- `views.sql` — views the Qlik data model (Step 15) will load from.
-- `load_data.sql` / `load_lifecycle.sql` — Step 2/3's one-shot bulk loads
+- `views.sql` — views the Qlik data model will load from.
+- `load_data.sql` / `load_lifecycle.sql` — one-shot bulk loads
   (permanent staging tables, no validation/audit) — still used to
-  reload derived lifecycle/settlement/accounting data after a Step 4 demo.
+  reload derived lifecycle/settlement/accounting data after a demo.
 - `ingest_trades.sql` / `ingest_clearing.sql` / `ingest_confirms.sql` —
-  Step 4's per-source loads (session-scoped temp tables, idempotent
+  per-source loads (session-scoped temp tables, idempotent
   anti-join inserts), driven by `ingestion/run_pipeline.py` — see
   `ingestion/README.md` for the validation + audit trail wrapped around
   these.
-- `ingest_reconciliation.sql` — loads Step 5's matching engine output
+- `ingest_reconciliation.sql` — loads matching engine output
   (`reconciliation/matching_engine.py`) into `reconciliation_results`.
-- `ingest_root_cause.sql` — loads Step 6's taxonomy crosswalk
+- `ingest_root_cause.sql` — loads taxonomy crosswalk
   (`root_cause/taxonomy.py`) into `root_cause_labels`.
-- `ingest_invoice.sql` — loads Step 9's invoice reconciliation
+- `ingest_invoice.sql` — loads invoice reconciliation
   (`invoice_recon/generate_invoice.py`) into `invoice_reconciliation`.
-- `ingest_aging.sql` — loads Step 10's break aging
+- `ingest_aging.sql` — loads break aging
   (`aging/break_aging.py`) into `break_aging_daily`/`break_aging_summary`.
-- `ingest_audit_log.sql` — loads Step 11's audit trail
+- `ingest_audit_log.sql` — loads audit trail
   (`audit_trail/build_audit_log.py`) into `audit_log` (append-only, no
   anti-join — see `audit_trail/README.md`).
-- `ingest_lineage.sql` — loads Step 12's lineage graph
+- `ingest_lineage.sql` — loads lineage graph
   (`lineage/build_lineage.py`) into `lineage_events` (18 table-level edges).
 - `perf_schema.sql` / `perf_load.sql` / `perf_load_optimized.sql` —
-  Step 13's standalone `perf_*` performance-testing tables and load
+  standalone `perf_*` performance-testing tables and load
   benchmarks (separate from the live schema's real data). See
   `performance/README.md`.
 
@@ -172,8 +171,7 @@ erDiagram
 `positions` and `lineage_events` aren't drawn with FK arrows above: both
 key off `(venue, symbol)`/arbitrary source-target table pairs rather than
 a single `trade_id`, by design — `positions` is an aggregate over many
-trades, and `lineage_events` deliberately stays table-agnostic so Step 12
-can point it at any table pair without a schema change.
+trades, and `lineage_events` deliberately stays table-agnostic so can point it at any table pair without a schema change.
 
 ## Design decisions (disclosed)
 

@@ -1,0 +1,219 @@
+// ReconEngine Qlik Sense load script
+// Connects to the live SQL Server schema (sql/schema.sql) and loads the
+// tables/views the 4 required sheets (qlik/sheets.md) need.
+//
+// Setup: in the Qlik Sense hub, create a Data Connection named
+// "ReconEngine" (ODBC or OLEDB, SQL Server driver) pointing at
+// localhost:1433, database reconengine (see sql/README.md for how the
+// container is started, port already mapped to the host). Then run this
+// script via Data load editor.
+//
+// Deliberate association discipline: Qlik's associative model links
+// tables by matching field names automatically. trade_id/venue/stage/
+// symbol are the intended hub keys and are loaded bare, on purpose, so
+// they associate. Every OTHER field is manually prefixed in its own LOAD
+// statement below (AS Settlement.Status, AS Reconciliation.MatchStatus,
+// etc.) so same-named SQL columns across tables (lifecycle_events.status
+// vs. settlements.settlement_status vs. reconciliation_results.match_status)
+// do NOT silently merge into one associated field -- the single most
+// common real Qlik modeling mistake.
+//
+// NOTE: an earlier version of this script also had `QUALIFY *;` here,
+// intending the same protection -- but QUALIFY auto-prefixes with the
+// TABLE name on top of whatever alias is already given, producing
+// doubled-up field names like `Settlements.Settlement.Status` instead of
+// `Settlement.Status` (caught live, mid-build, via a screenshot showing
+// the actual loaded field names in Qlik's source table viewer). Since
+// every field below is already manually disambiguated via its alias,
+// QUALIFY was redundant on top of that -- removed rather than patched.
+//
+// NOTE 2 (also caught live, via a Compliance-sheet screenshot showing an
+// impossible 11,008 total on a chart that should max out around 2,601):
+// every table below now loads its OWN surrogate primary key
+// (e.g. AgingDaily.SnapshotId), not just trade_id. Reason: trade_id is
+// the shared associative key across every fact table here, and several
+// of them carry MORE than one row per trade (LifecycleEvents: 5,
+// BreakAgingDaily: 0-15, ReconciliationResults/RootCauseLabels: 2).
+// `Count([trade_id])` on one of those tables doesn't count that table's
+// own rows -- Qlik counts trade_id across the whole associative fan-out,
+// silently inflating the result on any table that isn't 1:1 with trades.
+// Use each table's own row-id field for "how many records" measures
+// (e.g. `Count([AgingDaily.SnapshotId])`); reserve `Count([trade_id])`
+// (or `Count(DISTINCT [trade_id])`) for genuinely trade-level counts.
+
+LIB CONNECT TO 'ReconEngine';
+
+// --- Hub: real trades ---------------------------------------------------
+Trades:
+LOAD
+    trade_id,
+    venue,
+    native_trade_id,
+    symbol,
+    side          AS Trades.side,
+    price         AS Trades.price,
+    quantity      AS Trades.quantity,
+    traded_at     AS Trades.traded_at,
+    asset_class   AS Trades.asset_class,
+    1             AS IsRealTrade   // every dashboard tile filtering real vs. synthetic keys off this
+;
+SQL SELECT trade_id, venue, native_trade_id, symbol, side, price, quantity, traded_at, asset_class
+FROM trades;
+
+// --- Reconciliation --------------------------------------------
+ReconciliationResults:
+LOAD
+    trade_id,
+    result_id                 AS Reconciliation.ResultId,
+    stage,
+    match_status              AS Reconciliation.MatchStatus,
+    price_diff_pct            AS Reconciliation.PriceDiffPct,
+    quantity_diff_pct         AS Reconciliation.QuantityDiffPct,
+    side_match                AS Reconciliation.SideMatch,
+    injected_break_type       AS Reconciliation.InjectedBreakType
+;
+SQL SELECT trade_id, result_id, stage, match_status, price_diff_pct, quantity_diff_pct, side_match, injected_break_type
+FROM reconciliation_results;
+
+// --- Root-cause taxonomy ---------------------------------------
+RootCauseLabels:
+LOAD
+    trade_id,
+    label_id               AS RootCause.LabelId,
+    stage,
+    root_cause_category   AS RootCauseCategory,
+    has_timing_issue      AS HasTimingIssue,
+    lifecycle_status      AS RootCause.LifecycleStatus
+;
+SQL SELECT trade_id, label_id, stage, root_cause_category, has_timing_issue, lifecycle_status
+FROM root_cause_labels;
+
+// --- Lifecycle events -- one row per (trade, stage) already ----
+LifecycleEvents:
+LOAD
+    trade_id,
+    event_id         AS Lifecycle.EventId,
+    stage_code       AS LifecycleStage,
+    entered_at       AS Lifecycle.EnteredAt,
+    expected_by      AS Lifecycle.ExpectedBy,
+    status           AS Lifecycle.Status
+;
+SQL SELECT trade_id, event_id, stage_code, entered_at, expected_by, status
+FROM lifecycle_events;
+
+// --- Settlements & accounting feed -- both 1:1 with trade_id,
+// no fan-out risk, but their own PK is still loaded for consistency ------
+Settlements:
+LOAD
+    trade_id,
+    settlement_id         AS Settlement.SettlementId,
+    expected_settle_date  AS Settlement.ExpectedDate,
+    actual_settle_date    AS Settlement.ActualDate,
+    settlement_status     AS Settlement.Status,
+    settlement_amount     AS Settlement.AmountUSD
+;
+SQL SELECT trade_id, settlement_id, expected_settle_date, actual_settle_date, settlement_status, settlement_amount
+FROM settlements;
+
+AccountingFeed:
+LOAD
+    trade_id,
+    entry_id         AS Accounting.EntryId,
+    gl_account       AS Accounting.GLAccount,
+    debit_credit     AS Accounting.DebitCredit,
+    amount           AS Accounting.AmountUSD,
+    posting_status   AS Accounting.PostingStatus
+;
+SQL SELECT trade_id, entry_id, gl_account, debit_credit, amount, posting_status
+FROM accounting_feed;
+
+// --- Invoice reconciliation -- 1:1 with trade_id (UNIQUE trade_id
+// in the schema), no fan-out risk, but PK loaded for consistency --------
+InvoiceReconciliation:
+LOAD
+    trade_id,
+    invoice_line_id             AS Invoice.LineId,
+    venue,
+    expected_fee_usd            AS Invoice.ExpectedFeeUSD,
+    actual_fee_usd              AS Invoice.ActualFeeUSD,
+    delta_usd                   AS Invoice.DeltaUSD,
+    match_status                AS Invoice.MatchStatus,
+    injected_discrepancy_type   AS Invoice.DiscrepancyType
+;
+SQL SELECT trade_id, invoice_line_id, venue, expected_fee_usd, actual_fee_usd, delta_usd, match_status, injected_discrepancy_type
+FROM invoice_reconciliation;
+
+// --- Break aging -- up to 1 row per (trade, stage): use
+// Aging.SummaryId for "how many breaks" measures, not trade_id ----------
+BreakAgingSummary:
+LOAD
+    trade_id,
+    summary_id                     AS Aging.SummaryId,
+    stage,
+    root_cause_category            AS Aging.RootCauseCategory,
+    origin_date                    AS Aging.OriginDate,
+    resolved_date                  AS Aging.ResolvedDate,
+    resolution_days                AS Aging.ResolutionDays,
+    still_open_at_window_end       AS Aging.StillOpen,
+    max_escalation_tier_reached    AS Aging.EscalationTier
+;
+SQL SELECT trade_id, summary_id, stage, root_cause_category, origin_date, resolved_date, resolution_days,
+           still_open_at_window_end, max_escalation_tier_reached
+FROM break_aging_summary;
+
+// Daily rolling snapshot -- one row per (break, day) while still open, so
+// a break can carry MANY rows here. Use Aging.SnapshotId for "how many
+// open breaks" counts -- Count([trade_id]) here specifically was the bug
+// caught live (see NOTE 2 above): it inflated an expected ~1,562 down to
+// an 11,008 total by fanning out across every other linked table.
+BreakAgingDaily:
+LOAD
+    trade_id,
+    snapshot_id          AS AgingDaily.SnapshotId,
+    stage,
+    observation_date     AS AgingDaily.ObservationDate,
+    age_days             AS AgingDaily.AgeDays,
+    escalation_tier      AS AgingDaily.EscalationTier
+;
+SQL SELECT trade_id, snapshot_id, stage, observation_date, age_days, escalation_tier
+FROM break_aging_daily;
+
+// --- Audit log -- NOT keyed to trade_id in this model; it's an
+// event stream referenced by entity_ref, kept as its own unlinked table
+// so a compliance officer can browse it independent of any one trade ----
+AuditLog:
+LOAD
+    audit_log_id       AS Audit.AuditLogId,
+    event_type        AS Audit.EventType,
+    entity_type        AS Audit.EntityType,
+    entity_ref          AS Audit.EntityRef,
+    event_at              AS Audit.EventAt,
+    details                 AS Audit.Details
+;
+SQL SELECT audit_log_id, event_type, entity_type, entity_ref, event_at, details
+FROM audit_log;
+
+// --- Alerts ----------------------------------------------------
+Alerts:
+LOAD
+    alert_id         AS Alert.AlertId,
+    alert_type      AS Alert.Type,
+    severity         AS Alert.Severity,
+    entity_ref        AS Alert.EntityRef,
+    description        AS Alert.Description,
+    triggered_at         AS Alert.TriggeredAt,
+    acknowledged           AS Alert.Acknowledged
+;
+SQL SELECT alert_id, alert_type, severity, entity_ref, description, triggered_at, acknowledged
+FROM alerts;
+
+// --- Lineage graph -- reference table for the Lineage sheet ---
+LineageEdges:
+LOAD
+    source_table       AS Lineage.SourceTable,
+    target_table         AS Lineage.TargetTable,
+    transform_step          AS Lineage.TransformStep,
+    is_synthetic_source        AS Lineage.IsSyntheticSource
+;
+SQL SELECT source_table, target_table, transform_step, is_synthetic_source
+FROM lineage_events;

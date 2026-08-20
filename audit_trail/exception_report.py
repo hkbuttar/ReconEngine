@@ -1,4 +1,4 @@
-"""Step 11: exportable trade break / exception report, structured around
+"""Exportable trade break / exception report, structured around
 a real industry precedent for coded exception reporting rather than an
 ad-hoc layout.
 
@@ -16,7 +16,7 @@ verified here (disclosed rather than guessed at). What's grounded in it
 is the *structure*: a coded reason field with a controlled vocabulary is
 real, standard industry practice, not this project's invention -- so the
 report below uses ReconEngine's own real, cited taxonomy codes
-(root_cause/taxonomy.py, Step 6 -- TIMING, PRICING, QUANTITY,
+(root_cause/taxonomy.py, -- TIMING, PRICING, QUANTITY,
 REFERENCE_DATA, MISSING_RECORD) in that same structural role.
 
 Joins root_cause_labels (category), break_aging_summary (age/status), and

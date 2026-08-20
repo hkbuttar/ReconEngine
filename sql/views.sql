@@ -1,7 +1,7 @@
--- Views supporting the Qlik Sense data model (Step 15). Kept as plain
+-- Views supporting the Qlik Sense data model. Kept as plain
 -- presence/absence + raw-delta joins here; final break classification
 -- (materiality tolerances, root-cause labels) is layered on top in
--- reconciliation/ and root_cause/ (Steps 5-7), which will add their own
+-- reconciliation/ and root_cause/, which will add their own
 -- views once that logic exists.
 
 CREATE OR ALTER VIEW vw_TradeReconciliationStatus AS

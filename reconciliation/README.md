@@ -1,11 +1,11 @@
-# reconciliation/ — Matching Engine (Step 5)
+# reconciliation/ — Matching Engine
 
 `matching_engine.py` matches every real trade against the two synthetic
 external records at each stage (clearing, confirm), classifying each pair
 as `matched`, `broken`, or `missing`. See the module docstring for full
 tolerance rationale. Loaded into the live schema via
-`sql/ingest_reconciliation.sql` — Step 6/7 (root-cause classification)
-and Qlik (Step 15) build on `reconciliation_results` directly, not on the
+`sql/ingest_reconciliation.sql` — root-cause classification
+and Qlik build on `reconciliation_results` directly, not on the
 raw synthetic CSVs.
 
 ## Result (live, current trade set)
@@ -36,7 +36,7 @@ already sit at that precision's floor (`1e-8`) — a 0.1–2% relative
 perturbation of a value that small rounds back to the *exact same*
 8-decimal figure, silently no-op'ing the injected break. Fixed in the
 generator (forces a minimal-but-real difference when this happens),
-Step 2's synthetic data regenerated and reloaded, confirmed
+synthetic data regenerated and reloaded, confirmed
 0/348 after the fix. Disclosed here rather than quietly re-run, since
 it's a real artifact of representing crypto's precision floor, not
 noise.
@@ -48,7 +48,7 @@ Field matching only: price, quantity, side. **Not** timing — a
 its `received_at` timestamp is late), so this engine correctly calls it
 `matched`. Timing correctness is a different, already-covered question,
 answered by `lifecycle/state_machine.py`'s `on_time`/`late`/`breached`
-status (Step 3). Conflating the two would double-count the same
+status. Conflating the two would double-count the same
 underlying break under two different labels.
 
 ## Fuzzy matching (orphan records)

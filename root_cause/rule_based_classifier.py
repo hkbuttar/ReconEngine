@@ -1,10 +1,10 @@
-"""Step 7 (rule-based half): predicts root_cause_category from observable
+"""Rule-based half: predicts root_cause_category from observable
 fields only -- price_diff_pct, quantity_diff_pct, side_match, match_status,
 lifecycle_status -- the same signals a real reconciliation analyst would
 actually see. Deliberately does NOT read `injected_break_type`; that
 column exists only in root_cause_labels.csv as the ground truth this
-module is scored against, exactly as Step 5 scored the matching engine and
-Step 6 scored the taxonomy crosswalk against it.
+module is scored against, exactly as scored the matching engine and
+scored the taxonomy crosswalk against it.
 
 This is functionally a hand-written decision tree mirroring how a real
 ops rule engine would triage a break -- see root_cause/taxonomy.py's

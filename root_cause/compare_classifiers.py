@@ -1,4 +1,4 @@
-"""Step 7: honest side-by-side comparison of the rule-based classifier
+"""Honest side-by-side comparison of the rule-based classifier
 (root_cause/rule_based_classifier.py) and the ML classifier
 (root_cause/ml_classifier.py) against root_cause_labels.csv's ground
 truth. Run both classifiers first.

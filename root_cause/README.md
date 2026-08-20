@@ -1,12 +1,11 @@
-# root_cause/ — Industry-Grounded Root-Cause Taxonomy (Step 6)
+# root_cause/ — Industry-Grounded Root-Cause Taxonomy
 
 `taxonomy.py` defines 8 break categories and a deterministic crosswalk
-from this project's internal break vocabulary (Step 2's
-`injected_break_type`, Step 3's lifecycle timing status) onto them.
+from this project's internal break vocabulary onto them.
 Loaded into `root_cause_labels` via `sql/ingest_root_cause.sql`. This is
-Step 7's ground truth: the rule-based and ML classifiers it builds will
+ground truth: the rule-based and ML classifiers it builds will
 predict these labels *from observable fields alone*, then get scored
-against them — the same way Step 5 scored the matching engine.
+against them — the same way scored the matching engine.
 
 ## Taxonomy
 
@@ -44,7 +43,7 @@ than the FIX citations, not silently presented as equally verified.
 
 `ORPHAN_RECORD` and `CORPORATE_ACTION` have zero rows here by design:
 orphan synthetic records have no `trade_id` to key `root_cause_labels` on
-(they live in `reconciliation/fuzzy_match_*.csv` instead, Step 5), and
+(they live in `reconciliation/fuzzy_match_*.csv` instead), and
 this project's real trades are crypto spot trades with no equities-style
 corporate actions — both disclosed, not oversights.
 
@@ -59,7 +58,7 @@ both, not forced into one label.
 
 ---
 
-## Classification (Step 7): rule-based vs. ML
+## Classification: rule-based vs. ML
 
 Two classifiers predict `root_cause_category` from **observable fields
 only** — `price_diff_pct`, `quantity_diff_pct`, `side_match`,
@@ -68,7 +67,7 @@ exists solely as the evaluation target. Run: `rule_based_classifier.py`,
 `ml_classifier.py`, then `compare_classifiers.py`.
 
 - **Rule-based** (`rule_based_classifier.py`): a hand-written decision
-  tree mirroring Step 6's priority order, using the same 0.01% tolerance
+  tree mirroring priority order, using the same 0.01% tolerance
   as the matching engine. Deterministic, scored on the full 22,016 rows.
 - **ML** (`ml_classifier.py`): XGBoost multiclass, 70/30 stratified
   train/test split, one-hot categorical features. Scored on its 6,605-row
@@ -91,8 +90,7 @@ Every miss is a `TIMING → CLEAN` error, split into two distinct, verified
 causes:
 
 1. **8 rows: no lifecycle signal exists at all.** The trade never reached
-   the `settled` lifecycle stage (gated at an earlier stage per Step 3's
-   design), so there is no `lifecycle_events` row to read a status from —
+   the `settled` lifecycle stage (gated at an earlier stage per design), so there is no `lifecycle_events` row to read a status from —
    a genuine information limit, not a modeling gap either classifier
    could close from observable fields alone.
 2. **13 rows: the delay is real but absorbed by a looser deadline.** The
@@ -146,7 +144,7 @@ once that value is known.
 
 Predictions/comparisons here are kept as file artifacts
 (`*_predictions.csv`, `*_summary.json`), not loaded into a new SQL table —
-unlike Steps 2–6, this step is an analysis/evaluation exercise on top of
-the already-persisted `root_cause_labels` ground truth, not a new part of
-the core data model. Step 17 (Results & Honest Comparison) is where this
-comparison gets surfaced project-wide.
+unlike the rest of the core data model, this is an analysis/evaluation
+exercise on top of the already-persisted `root_cause_labels` ground
+truth, not a new part of the schema. The project's overall results
+writeup is where this comparison gets surfaced project-wide.

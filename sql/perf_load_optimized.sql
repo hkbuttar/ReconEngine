@@ -1,4 +1,4 @@
--- Step 13: optimized version of the clearing_statements load. The
+-- Optimized version of the clearing_statements load. The
 -- CHARINDEX/SUBSTRING string-parsing embedded directly in the JOIN
 -- predicate (sql/perf_load.sql, and every ingest_*.sql in production) is
 -- non-sargable -- SQL Server can't use perf_trades' (venue,
@@ -30,7 +30,7 @@ GO
 
 -- Added only after BULK INSERT completes -- adding them to the staging
 -- table up front breaks BULK INSERT's positional column mapping to the
--- 11-column CSV (the exact bug this project already hit in Step 2:
+-- 11-column CSV (the exact bug this project already hit earlier --
 -- data/synthetic/README.md's ROWTERMINATOR fix, same "IID_IColumnsInfo"
 -- error class).
 ALTER TABLE #stg_perf_clearing2 ADD venue_ref NVARCHAR(20), native_id_ref NVARCHAR(40);

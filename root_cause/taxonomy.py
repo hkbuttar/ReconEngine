@@ -1,4 +1,4 @@
-"""Step 6: an industry-grounded post-trade break taxonomy, and a
+"""An industry-grounded post-trade break taxonomy, and a
 deterministic crosswalk from this project's internal break vocabulary
 (data/synthetic/generate_synthetic_records.py's `injected_break_type`,
 plus lifecycle timing status) into it.
@@ -27,9 +27,9 @@ weaker-sourced than the FIX citations above.
 
 This module only defines the taxonomy and crosswalks *known* synthetic
 break types onto it -- it does not predict a category from observable
-fields alone. That's Step 7's job (rule-based vs. ML classification),
+fields alone. That's job (rule-based vs. ML classification),
 which needs this module's output as labeled ground truth to score against,
-the same way Step 5 scored the matching engine against
+the same way scored the matching engine against
 `injected_break_type` directly.
 """
 

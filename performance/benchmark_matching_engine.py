@@ -1,4 +1,4 @@
-"""Step 13: measures the real matching engine's (reconciliation/matching_engine.py)
+"""Measures the real matching engine's (reconciliation/matching_engine.py)
 throughput and latency against the volume-scaled dataset -- the actual
 pipeline code, not a stand-in benchmark that merely resembles it.
 """

@@ -1,4 +1,4 @@
--- Step 4 per-source load: exchange_confirms (exchange source). Same
+ per-source load: exchange_confirms (exchange source). Same
 -- pattern as ingest_clearing.sql.
 
 CREATE TABLE #stg_confirms (

@@ -1,11 +1,10 @@
-"""Step 14: scans the live schema against disclosed alerting thresholds
+"""Scans the live schema against disclosed alerting thresholds
 and writes triggered alerts to `alerts`. All DB access goes through
 `docker exec reconengine-sql sqlcmd` -- same environment constraint as
 ingestion/run_pipeline.py (no local ODBC driver, see sql/README.md).
 
 Alerting thresholds are deliberately a HIGHER bar than the materiality/
-break thresholds that flag something as broken in the first place (Step 9,
-Step 10) -- not every break needs to page someone. That distinction is a
+break thresholds that flag something as broken in the first place -- not every break needs to page someone. That distinction is a
 disclosed judgment call: a materiality threshold decides what counts as a
 break at all; an alerting threshold decides what's urgent enough to
 surface, and conflating the two would either alert on everything (noise)
@@ -13,11 +12,10 @@ or nothing (missed the point of a break threshold existing).
 
 Rules:
   - CRITICAL_AGED_BREAK: a break_aging_summary row still open at
-    TIER4_CRITICAL_AGED (Step 10's real tier, reused directly -- not a
-    new number invented here).
+    TIER4_CRITICAL_AGED.
   - MATERIAL_INVOICE_DISCREPANCY: a discrepant invoice line where the
     dollar impact exceeds $10 absolute OR 50% relative to the expected
-    fee -- notably higher than Step 9's $0.01/10% materiality bar for
+    fee -- notably higher than $0.01/10% materiality bar for
     "discrepant" at all, since paging someone over a $0.02 fee error
     would be pure noise.
   - LOW_MATCH_RATE: any reconciliation stage's match rate drops below
@@ -66,7 +64,7 @@ def rule_critical_aged_breaks() -> str:
     SELECT 'CRITICAL_AGED_BREAK', 'critical',
            CAST(trade_id AS NVARCHAR(20)) + '|' + stage,
            'Break still open at TIER4_CRITICAL_AGED (14+ days unresolved): ' + root_cause_category,
-           'age >= 14 days (Step 10 escalation tier)'
+           'age >= 14 days'
     FROM break_aging_summary
     WHERE max_escalation_tier_reached = 'TIER4_CRITICAL_AGED' AND still_open_at_window_end = 1;
     """

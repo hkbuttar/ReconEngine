@@ -1,8 +1,8 @@
-# performance/ — Volume & Performance Testing (Step 13)
+# performance/ — Volume & Performance Testing
 
 ## Volume-scaling methodology (disclosed)
 
-Real trade data (Step 1) is 11,008 real trades over ~7 minutes — not a
+Real trade data is 11,008 real trades over ~7 minutes — not a
 high-volume day. `generate_volume_dataset.py` scales it to 200,000 trades
 via **disclosed replication**, not fabrication: each replica copies a
 real trade's **price, quantity, and side verbatim** (actual real market
@@ -10,7 +10,7 @@ data), gets a synthetic new `native_trade_id` (the real venue never
 issued a second id for the same trade — the id is what's synthesized),
 and a new `traded_at` redistributed across a simulated 24-hour trading
 day. `generate_volume_synthetic.py` then generates matching
-clearing/confirm records by **reusing Step 2's actual `generate()`
+clearing/confirm records by **reusing the same `generate()`
 function** against the larger input — same disclosed discrepancy rates,
 just at volume, not a re-derived methodology. Output: `volume_trades.csv`
 (200,000 rows), `volume_clearing_statements.csv` (~198,000 rows) — a

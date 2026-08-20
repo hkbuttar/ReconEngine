@@ -1,9 +1,9 @@
-"""Step 12: writes the durable lineage graph (lineage/lineage_graph.json),
+"""Writes the durable lineage graph (lineage/lineage_graph.json),
 mirroring MarketForge's warehouse/metadata/lineage.json artifact (see
 lineage/graph.py's docstring for the full reuse rationale), and loads the
 same edges into the live `lineage_events` table.
 
-Note on lineage_events' schema (sql/schema.sql, added in Step 2): its
+Note on lineage_events' schema (sql/schema.sql): its
 source_pk/target_pk columns were designed for row-level lineage. This
 step's edges are asset/table-level (matching the reused MarketForge
 design), so source_pk/target_pk are populated as 0 -- an explicit

@@ -1,4 +1,4 @@
-"""Step 12: traces one specific trade's actual data through every table
+"""Traces one specific trade's actual data through every table
 it appears in, live, on demand -- the "every dashboard figure traceable
 to its originating record" requirement, satisfied by walking
 lineage/graph.py's asset-level graph and looking up the real row at each

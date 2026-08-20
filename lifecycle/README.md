@@ -1,9 +1,9 @@
-# lifecycle/ — Trade Lifecycle State Machine (Step 3)
+# lifecycle/ — Trade Lifecycle State Machine
 
 `state_machine.py` derives the 5-stage lifecycle
 (`captured → sent_to_clearing → confirmed → settled → posted_to_accounting`,
 fixed by `lifecycle_stage_ref` in `sql/schema.sql`) for every real trade,
-by combining `data/real/trades_real.csv` with Step 2's synthetic
+by combining `data/real/trades_real.csv` with synthetic
 `clearing_statements.csv` / `exchange_confirms.csv`. See the module
 docstring for the full stage-mapping rationale, gating rule, and
 monotonicity guard — summarized below.
@@ -31,7 +31,7 @@ Loaded into the live SQL Server schema via `sql/load_lifecycle.sql`
 
 **431 real trades (11,008 − 10,577) never reach `posted_to_accounting`** —
 each stalls at whichever stage's synthetic record was injected as
-`missing` (Step 2). That gap is itself the signal a real operations team
+`missing`. That gap is itself the signal a real operations team
 would triage; it isn't cleaned up or backfilled here, by design.
 
 ## Disclosed judgment calls (see module docstring for full detail)

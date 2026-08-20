@@ -1,4 +1,4 @@
-"""Step 8 (query half): natural-language question -> T-SQL SELECT ->
+"""Query half: natural-language question -> T-SQL SELECT ->
 execution against the live schema. The generated SQL is always shown
 alongside the results, never executed silently -- this is a transparency
 requirement, not a nicety: a wrong or misleading query should be

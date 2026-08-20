@@ -1,5 +1,5 @@
--- Step 14: monitoring/observability views. Feed Qlik's Operations view
--- (Step 15) and the FastAPI monitoring endpoint (Step 18) directly --
+-- Monitoring/observability views. Feed Qlik's Operations view
+-- and the FastAPI monitoring endpoint directly --
 -- these are the canonical metric definitions both consume, not
 -- redefined ad hoc in either place.
 

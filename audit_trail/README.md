@@ -1,4 +1,4 @@
-# audit_trail/ — Audit Trail & Regulatory-Format Reporting (Step 11)
+# audit_trail/ — Audit Trail & Regulatory-Format Reporting
 
 ## Immutable audit log
 
@@ -27,10 +27,10 @@ table rather than deleting it.
 
 | event_type | count | source |
 |---|---:|---|
-| `INGESTION_RUN` | 3 | Step 4's real ingestion runs |
-| `BREAK_IDENTIFIED` | 2,601 | Step 6's non-`CLEAN` root-cause labels |
-| `BREAK_RESOLVED` | 2,347 | Step 10's aging simulation |
-| `INVOICE_DISCREPANCY_IDENTIFIED` | 795 | Step 9's non-`matched` invoice lines |
+| `INGESTION_RUN` | 3 | real ingestion runs |
+| `BREAK_IDENTIFIED` | 2,601 | non-`CLEAN` root-cause labels |
+| `BREAK_RESOLVED` | 2,347 | aging simulation |
+| `INVOICE_DISCREPANCY_IDENTIFIED` | 795 | non-`matched` invoice lines |
 
 `sql/ingest_audit_log.sql` loads it — no idempotent anti-join here
 (unlike every other `ingest_*.sql`): an append-only audit trail is
@@ -57,14 +57,13 @@ verified in this pass (disclosed rather than guessed at). What's grounded
 in the real precedent is the *structure*: a coded reason field with a
 controlled vocabulary is standard real industry practice, not invented
 here — so the report uses ReconEngine's own real, cited taxonomy codes
-(`root_cause/taxonomy.py`, Step 6) in that same role.
+(`root_cause/taxonomy.py`) in that same role.
 
 ### Result
 
 2,601 breaks reported: 254 `OPEN` (all `TIER4_CRITICAL_AGED`), 2,347
 `RESOLVED`. 124 rows carry a `financial_impact_usd` figure — a
-**coincidental** overlap, not a causal one: reconciliation breaks
-(Step 6) and invoice discrepancies (Step 9) are independently generated
+**coincidental** overlap, not a causal one: reconciliation breaks and invoice discrepancies are independently generated
 with separate seeded randomness, so a trade appearing in both just means
 it happened to draw an injected break in each independent process, not
 that one caused the other.

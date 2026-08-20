@@ -1,4 +1,4 @@
-# aging/ — Multi-Day Rolling Reconciliation with Break Aging (Step 10)
+# aging/ — Multi-Day Rolling Reconciliation with Break Aging
 
 `break_aging.py` takes every non-`CLEAN` break from
 `root_cause/root_cause_labels.csv` (2,601 of them) and simulates 15 daily
@@ -10,8 +10,7 @@ disclosed synthetic resolution date. Loaded into `break_aging_daily`
 ## The real-data constraint, disclosed up front
 
 The plan calls for a genuine multi-day rolling cycle over "the real trade
-data's actual date range." That range is a single real day (Step 1's live
-market pull spans ~1 hour). This module doesn't fabricate multi-day trade
+data's actual date range." That range is a single real day. This module doesn't fabricate multi-day trade
 data to route around that — it uses **real, un-fabricated calendar
 dates** as simulated "as of" checkpoints, running the same fixed set of
 real breaks through 15 daily observations. Every date in

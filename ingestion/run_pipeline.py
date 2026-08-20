@@ -1,13 +1,13 @@
-"""Step 4 ETL orchestrator: validates each source CSV (schema, types,
+"""ETL orchestrator: validates each source CSV (schema, types,
 duplicate keys, referential integrity) before loading, loads it via its
 sql/ingest_*.sql script, and logs every run to the `ingestion_audit`
-table -- feeding Step 12 (lineage) and Step 14 (monitoring: ingestion
-success/failure rate).
+table -- feeding lineage and monitoring: ingestion
+success/failure rate.
 
 No local ODBC driver/pyodbc is set up in this environment (see
 sql/README.md) -- all DB access here goes through `docker exec
 reconengine-sql sqlcmd`, the same mechanism used to validate the schema
-in Steps 2-3. This is a dev-environment constraint, not a design choice;
+earlier. This is a dev-environment constraint, not a design choice;
 a production version would connect directly.
 
 Three sources, run in dependency order (clearing/confirm reference

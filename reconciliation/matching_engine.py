@@ -1,4 +1,4 @@
-"""Step 5: matches real trades (data/real/trades_real.csv) against the two
+"""Matches real trades (data/real/trades_real.csv) against the two
 synthetic external records (data/synthetic/{clearing_statements,exchange_confirms}.csv)
 at each stage, classifying every (trade, stage) pair as matched, broken, or
 missing -- plus a fuzzy composite-key pass over orphan records, per the

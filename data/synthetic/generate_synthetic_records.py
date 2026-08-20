@@ -7,7 +7,7 @@ see data/synthetic/README.md for the full disclosure. Every row this script
 writes carries an `injected_break_type` column (`'none'` for a clean
 match) so the synthetic layer is auditable at a glance rather than needing
 to be reverse-engineered later. This also doubles as ground truth for
-Step 7's rule-based vs. ML root-cause classifier comparison.
+rule-based vs. ML root-cause classifier comparison.
 
 Deterministic: fixed random seed (42), so reruns reproduce the same
 injected breaks against the same real trades_real.csv. Re-run after a
@@ -16,7 +16,7 @@ real trades.
 
 Injection design (disclosed judgment call -- see module-level BREAK_RATES
 below for exact per-category rates, chosen to be large enough to give the
-downstream reconciliation engine (Step 5) and classifiers (Step 7)
+downstream reconciliation engine and classifiers
 meaningfully many examples of each break type without making "broken" the
 common case, which would misrepresent how reconciliation actually looks in
 practice -- most trades match cleanly):

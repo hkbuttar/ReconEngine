@@ -24,8 +24,7 @@ every row honestly labels whether and how it was perturbed via the
 
 Both reference the real trade via `trade_id_ref` = `"{venue}:{native_trade_id}"`
 (matching `trades_real.csv`'s natural key), not a SQL `trade_id` — that
-surrogate key only exists once a row is loaded into the `trades` table
-(Step 4 ETL resolves the reference at load time). `orphan` rows have an
+surrogate key only exists once a row is loaded into the `trades` table. `orphan` rows have an
 empty `trade_id_ref`: by definition, no real trade backs them.
 
 ## Injection methodology (disclosed judgment calls)
@@ -54,14 +53,13 @@ see [`data/real/settlement_rules.py`](../real/settlement_rules.py) for the
 one settlement timing figure in the project that *is* a real, cited
 convention (US equities T+1).
 
-**Why these rates**: chosen to give the downstream reconciliation engine
-(Step 5) and root-cause classifiers (Step 7) meaningfully many examples of
+**Why these rates**: chosen to give the downstream reconciliation engine and root-cause classifiers meaningfully many examples of
 every break category, without making "broken" the common case — real
 reconciliation is mostly clean matches with a minority of exceptions, and
 a dataset that inverted that ratio would misrepresent how the problem
 actually looks in practice.
 
-**Ground truth for Step 7**: because every row is labeled with the break
+**Ground truth for classifier evaluation**: because every row is labeled with the break
 that was (or wasn't) injected, this file doubles as a labeled evaluation
 set for comparing the rule-based and ML root-cause classifiers' accuracy
 against a known-correct answer — not just against each other.

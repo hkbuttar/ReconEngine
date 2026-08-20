@@ -1,4 +1,4 @@
--- Step 4 per-source load: clearing_statements (clearing firm source).
+ per-source load: clearing_statements (clearing firm source).
 -- Same temp-table + idempotent anti-join pattern as ingest_trades.sql.
 -- Assumes trades has already been ingested (trade_id_ref resolution
 -- depends on it).

@@ -1,5 +1,5 @@
--- Step 6 load: root_cause_labels (root_cause/taxonomy.py output). Same
--- temp-table + idempotent-anti-join pattern as sql/ingest_*.sql (Step 4/5).
+ load: root_cause_labels (root_cause/taxonomy.py output). Same
+-- temp-table + idempotent-anti-join pattern as sql/ingest_*.sql.
 
 CREATE TABLE #stg_root_cause (
     trade_id_ref NVARCHAR(60), stage NVARCHAR(20), root_cause_category NVARCHAR(30),

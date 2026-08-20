@@ -1,6 +1,5 @@
--- Step 2 validation load: real trades + synthetic clearing/confirm CSVs
--- into the schema, via staging tables + BULK INSERT. Not the full Step 4
--- ETL (no data-quality checks / ingestion audit yet) -- this just proves
+ validation load: real trades + synthetic clearing/confirm CSVs
+-- into the schema, via staging tables + BULK INSERT. Not the full -- ETL (no data-quality checks / ingestion audit yet) -- this just proves
 -- the schema holds real data end-to-end. Assumes trades_real.csv,
 -- clearing_statements.csv, exchange_confirms.csv are already copied to
 -- /tmp/ inside the container (see ingestion/load_to_sql_server.sh).

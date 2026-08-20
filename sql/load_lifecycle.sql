@@ -1,5 +1,5 @@
 -- Loads lifecycle/{lifecycle_events,settlements,accounting_feed}.csv
--- (Step 3 output) into the schema, same staging-table + BULK INSERT
+-- into the schema, same staging-table + BULK INSERT
 -- pattern as sql/load_data.sql. Assumes trades is already populated (see
 -- that script) and the 3 CSVs are copied to /tmp/ in the container.
 

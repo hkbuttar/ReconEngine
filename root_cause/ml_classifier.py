@@ -1,4 +1,4 @@
-"""Step 7 (ML half): trains an XGBoost multiclass classifier on the same
+"""ML half: trains an XGBoost multiclass classifier on the same
 observable features the rule-based classifier uses (root_cause/rule_based_classifier.py)
 -- price_diff_pct, quantity_diff_pct, side_match, match_status,
 lifecycle_status -- to predict root_cause_category, then evaluates it on

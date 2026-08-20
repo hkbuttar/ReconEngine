@@ -1,10 +1,10 @@
-# ingestion/ — Multi-Source Ingestion / ETL (Step 4)
+# ingestion/ — Multi-Source Ingestion / ETL
 
 ## Files
 
-- `acquire_real_trades.py` (Step 1) — pulls real trade data live from
+- `acquire_real_trades.py` — pulls real trade data live from
   Binance/Coinbase/Kraken's public APIs into `data/real/`.
-- `run_pipeline.py` (Step 4) — validates and loads each source into SQL
+- `run_pipeline.py` — validates and loads each source into SQL
   Server, with a full audit trail. **This is the file this step is
   about** — the other two are earlier steps' acquisition scripts.
 
@@ -38,19 +38,19 @@ still proceeds with whatever's left rather than failing the whole batch.
 
 **Load**: each source's SQL lives in its own `sql/ingest_*.sql`, using a
 session-scoped temp table (`#stg_...`) rather than the permanent staging
-tables from Steps 2-3's manual loads — a failed run can no longer leave a
-dangling table behind (that happened twice during Step 2/3 debugging).
+tables from earlier manual loads — a failed run can no longer leave a
+dangling table behind (that happened twice during earlier debugging).
 Loads are **idempotent**: each `INSERT` anti-joins against what's already
 in the target table on its natural key, so rerunning against
 already-ingested data loads zero new rows instead of erroring on the
 unique constraint or duplicating data. Verified by running the pipeline
-twice in a row — see `README.md`'s Step 4 status line for the counts.
+twice in a row — see `README.md`'s status line for the counts.
 
 **Audit**: every run writes a row to `ingestion_audit`
 (`sql/schema.sql`) — `started_at`/`completed_at`, `status`
 (`running`→`succeeded`/`failed`), `rows_read`/`rows_valid`/`rows_rejected`/`rows_loaded`,
-and a JSON `quality_check_summary`. This is what Step 14 (monitoring)
-computes ingestion success/failure rate from, and what Step 12 (lineage)
+and a JSON `quality_check_summary`. This is what monitoring
+computes ingestion success/failure rate from, and what lineage
 anchors to for "which run produced this row."
 
 ## Environment constraint (disclosed)

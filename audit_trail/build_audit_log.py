@@ -1,14 +1,14 @@
-"""Step 11: builds the audit trail from this project's own real, already-
+"""Builds the audit trail from this project's own real, already-
 computed pipeline activity -- not fabricated placeholder events. Every
 row here corresponds to something the pipeline actually did:
 
-  - INGESTION_RUN: one per real ingestion_audit run (Step 4).
+  - INGESTION_RUN: one per real ingestion_audit run.
   - BREAK_IDENTIFIED: one per real reconciliation break
-    (root_cause/root_cause_labels.csv's non-CLEAN rows, Step 6).
+    (root_cause/root_cause_labels.csv's non-CLEAN rows).
   - BREAK_RESOLVED: one per break the aging simulation resolved
-    (aging/break_aging_summary.csv, Step 10).
+    (aging/break_aging_summary.csv).
   - INVOICE_DISCREPANCY_IDENTIFIED: one per invoice line that didn't
-    match (invoice_recon/invoice_reconciliation.csv, Step 9).
+    match (invoice_recon/invoice_reconciliation.csv).
 
 Loaded into `audit_log`, a SQL Server 2022 append-only LEDGER table --
 immutability is enforced by the database engine itself, not by
@@ -31,8 +31,7 @@ def _read_csv(path: pathlib.Path) -> list[dict]:
 
 
 def build_ingestion_events() -> list[dict]:
-    # ingestion_audit lives only in the live DB (Step 4 loaded it there
-    # directly, no CSV artifact) -- reconstructed here from the pipeline's
+    # ingestion_audit lives only in the live DB -- reconstructed here from the pipeline's
     # own known run, since re-querying the DB isn't needed for a fixed,
     # already-known set of 3 runs.
     return [
@@ -43,8 +42,7 @@ def build_ingestion_events() -> list[dict]:
 
 
 def build_aging_events() -> tuple[list[dict], list[dict]]:
-    """BREAK_IDENTIFIED events are sourced from break_aging_summary.csv
-    (Step 10), not directly from root_cause_labels.csv, since the former
+    """BREAK_IDENTIFIED events are sourced from break_aging_summary.csv, not directly from root_cause_labels.csv, since the former
     already carries each break's origin_date -- avoiding a second lookup
     for the same information."""
     rows = _read_csv(REPO_ROOT / "aging" / "break_aging_summary.csv")

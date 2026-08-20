@@ -1,6 +1,6 @@
--- Step 9 load: invoice_reconciliation (invoice_recon/generate_invoice.py
+ load: invoice_reconciliation (invoice_recon/generate_invoice.py
 -- output). Same temp-table + idempotent-anti-join pattern as
--- sql/ingest_*.sql (Steps 4-6).
+-- sql/ingest_*.sql.
 
 CREATE TABLE #stg_invoice (
     trade_id_ref NVARCHAR(60), venue NVARCHAR(20), notional NVARCHAR(40),

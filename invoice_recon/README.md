@@ -1,4 +1,4 @@
-# invoice_recon/ — Invoice Reconciliation (Step 9)
+# invoice_recon/ — Invoice Reconciliation
 
 `generate_invoice.py` computes **expected** fee line items from real
 trade notional (`data/real/trades_real.csv`) against real, published
@@ -59,13 +59,11 @@ genuinely isn't immaterial anymore. This mirrors the real operational
 lesson every fixed-dollar materiality policy eventually runs into on a
 book with a wide notional range.
 
-## Also found and fixed: the same scientific-notation bug as Step 2
-
-`round(x, 8)` on a sub-cent fee amount produces Python floats like
+## Also found and fixed: the same scientific-notation bug as `round(x, 8)` on a sub-cent fee amount produces Python floats like
 `1e-08`, which `str()`/`csv.writer` render as `"1e-08"` — a value SQL
 Server's `CAST(... AS DECIMAL)` rejects outright (`Msg 8114`), caught
 immediately on the first live load attempt. Same root cause and same fix
 as `data/synthetic/generate_synthetic_records.py`'s `_perturb_quantity`
-bug (Step 5's README): format every numeric field as a fixed-point string
+bug: format every numeric field as a fixed-point string
 (`f"{value:.8f}"`) at the point it's written, never rely on Python's
 default float-to-string conversion.

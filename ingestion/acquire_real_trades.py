@@ -33,7 +33,7 @@ machine and matching engine treat as the real trade's primary key.
 
 Volume note: this pulls a real but modest sample per venue (a few thousand
 trades over a recent time window) -- enough to be a genuine real-data anchor,
-not enough to be a high-volume dataset on its own. Step 13 (performance/)
+not enough to be a high-volume dataset on its own. performance/
 replicates and extends this real sample to a high-volume scenario, disclosed
 there as a volume-scaling technique applied on top of genuinely real
 individual trade records, not fabricated trades.

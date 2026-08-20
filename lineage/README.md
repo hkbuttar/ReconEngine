@@ -1,4 +1,4 @@
-# lineage/ — Data Lineage Tracking (Step 12)
+# lineage/ — Data Lineage Tracking
 
 Two complementary pieces, both explicitly reusing the design MarketForge
 already validated (`~/marketforge/docs/data_lineage.md`,

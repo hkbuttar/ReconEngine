@@ -1,6 +1,5 @@
 """Derives lifecycle_events (+ settlements, accounting_feed) rows for
-every real trade, by combining data/real/trades_real.csv with Step 2's
-synthetic clearing_statements.csv / exchange_confirms.csv.
+every real trade, by combining data/real/trades_real.csv with synthetic clearing_statements.csv / exchange_confirms.csv.
 
 Stage mapping (the 5 stages are fixed by lifecycle_stage_ref, sql/schema.sql):
 
@@ -20,8 +19,7 @@ Stage mapping (the 5 stages are fixed by lifecycle_stage_ref, sql/schema.sql):
 
 This ordering -- exchange confirmation before clearing settlement -- is
 deliberate, not incidental: exchange_confirms' normal lag (5s-15min) is
-genuinely faster than clearing_statements' (30min-6h) in the Step 2
-generator, matching how real trade confirmation actually outpaces
+genuinely faster than clearing_statements' (30min-6h) in the generator, matching how real trade confirmation actually outpaces
 clearing-cycle settlement. Mapping the faster source to the earlier stage
 keeps entered_at timestamps monotonically increasing across the 5 stages
 in the normal case.
@@ -32,7 +30,7 @@ no lifecycle_events row is written for it, or for anything downstream.
 This project models settlement and accounting posting as gated on
 confirmation, not optimistically continued regardless of upstream breaks.
 A trade that never reaches posted_to_accounting is itself a real
-monitoring signal (Step 14), not a bug.
+monitoring signal, not a bug.
 
 Monotonicity guard: `settled`'s entered_at is
 max(clearing_statement.received_at, confirmed's entered_at) -- settlement

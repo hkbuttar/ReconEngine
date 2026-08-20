@@ -1,4 +1,4 @@
--- Step 13: performance-testing load, same BULK INSERT + CHARINDEX-join
+-- Performance-testing load, same BULK INSERT + CHARINDEX-join
 -- pattern as sql/ingest_trades.sql / sql/ingest_clearing.sql (the actual
 -- production loading code), against perf_trades/perf_clearing_statements
 -- at volume. SET STATISTICS TIME ON reports SQL Server's own measured

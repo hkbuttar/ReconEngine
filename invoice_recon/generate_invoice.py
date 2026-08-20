@@ -1,5 +1,5 @@
-"""Step 9: computes EXPECTED invoice line items from real trade volume
-against Step 1's real, published fee schedules (data/real/fee_schedules.py),
+"""Computes EXPECTED invoice line items from real trade volume
+against real, published fee schedules (data/real/fee_schedules.py),
 then generates a synthetically perturbed "actual received invoice" per
 venue with disclosed, labeled discrepancies -- the discrepancy itself,
 not the underlying real fee rates, is what's unavoidably synthetic (no

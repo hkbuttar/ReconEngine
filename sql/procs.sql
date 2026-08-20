@@ -1,6 +1,6 @@
--- Common reconciliation stored procedures (Step 2 scaffolding). Full break
+-- Common reconciliation stored procedures. Full break
 -- classification logic (matching tolerances, root-cause taxonomy) belongs
--- to reconciliation/ and root_cause/ (Steps 5-7) -- these procs expose the
+-- to reconciliation/ and root_cause/ -- these procs expose the
 -- raw joins/aggregates those steps and Qlik build on, not final verdicts.
 
 CREATE OR ALTER PROCEDURE usp_GetTradeLifecycleStatus

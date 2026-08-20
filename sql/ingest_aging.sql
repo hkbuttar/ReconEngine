@@ -1,6 +1,6 @@
--- Step 10 load: break_aging_daily + break_aging_summary
+ load: break_aging_daily + break_aging_summary
 -- (aging/break_aging.py output). Same temp-table + idempotent-anti-join
--- pattern as sql/ingest_*.sql (Steps 4-6, 9).
+-- pattern as sql/ingest_*.sql.
 
 CREATE TABLE #stg_aging_daily (
     trade_id_ref NVARCHAR(60), stage NVARCHAR(20), root_cause_category NVARCHAR(30),

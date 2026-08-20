@@ -1,4 +1,4 @@
-"""Step 13: scales the real trade dataset (11,008 real trades, Step 1) up
+"""Scales the real trade dataset (11,008 real trades) up
 to a realistic high-volume day for performance testing, via disclosed
 replication -- not fabricated trades.
 

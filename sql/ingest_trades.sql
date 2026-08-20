@@ -1,7 +1,7 @@
--- Step 4 per-source load: trades (front-office/exchange source). Uses a
+-- Per-source load: trades (front-office/exchange source). Uses a
 -- local temp table (#-prefixed), not a permanent staging table like
--- sql/load_data.sql (Step 2) -- session-scoped, so a failed run can't
--- leave a dangling table behind the way the Step 2/3 debugging did.
+-- sql/load_data.sql -- session-scoped, so a failed run can't
+-- leave a dangling table behind the way earlier debugging did.
 -- Idempotent: anti-joins against existing trades on the natural key, so
 -- rerunning against a source that's already (partly) loaded only inserts
 -- what's new instead of violating the unique constraint or duplicating rows.

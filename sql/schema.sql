@@ -1,4 +1,4 @@
--- ReconEngine SQL Server schema (Step 2).
+-- ReconEngine SQL Server schema.
 -- Target: SQL Server 2019+ / Azure SQL. Not yet executed against a live
 -- instance in this environment -- see sql/README.md "Status" section.
 --
@@ -96,9 +96,7 @@ CREATE TABLE accounting_feed (
 );
 CREATE INDEX ix_accounting_trade_id ON accounting_feed(trade_id);
 
--- Lifecycle state machine (Step 3 populates/transitions this; table lives
--- in the schema from Step 2 since positions/settlements/accounting_feed
--- above all key off it conceptually).
+-- Lifecycle state machine.
 CREATE TABLE lifecycle_stage_ref (
     stage_code  NVARCHAR(30) PRIMARY KEY,
     stage_order INT          NOT NULL UNIQUE,
@@ -123,7 +121,7 @@ CREATE TABLE lifecycle_events (
 );
 CREATE INDEX ix_lifecycle_trade_id ON lifecycle_events(trade_id);
 
--- Minimal lineage capture for Step 2; expanded in Step 12 (lineage/).
+-- Minimal lineage capture; expanded in lineage/.
 CREATE TABLE lineage_events (
     lineage_id          BIGINT IDENTITY(1,1) PRIMARY KEY,
     source_table        NVARCHAR(60)  NOT NULL,
@@ -134,11 +132,8 @@ CREATE TABLE lineage_events (
     is_synthetic_source  BIT           NOT NULL,
     recorded_at          DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
 );
-CREATE INDEX ix_lineage_source ON lineage_events(source_table, source_pk);
-
--- Step 4: one row per ingestion run (ingestion/run_pipeline.py), tracking
--- pre-load data-quality outcomes alongside actual DB load counts. Feeds
--- Step 12 (lineage) and Step 14 (monitoring: ingestion success/failure rate).
+CREATE INDEX ix_lineage_source ON lineage_events(source_table, source_pk);: one row per ingestion run (ingestion/run_pipeline.py), tracking
+-- pre-load data-quality outcomes alongside actual DB load counts. Feeds (lineage) and monitoring: ingestion success/failure rate.
 CREATE TABLE ingestion_audit (
     audit_id      BIGINT IDENTITY(1,1) PRIMARY KEY,
     source_name   NVARCHAR(60)  NOT NULL,
@@ -154,9 +149,7 @@ CREATE TABLE ingestion_audit (
     quality_check_summary NVARCHAR(MAX) NULL,
     error_message NVARCHAR(MAX) NULL
 );
-CREATE INDEX ix_ingestion_audit_source ON ingestion_audit(source_name, started_at);
-
--- Step 5: matching engine output (reconciliation/matching_engine.py).
+CREATE INDEX ix_ingestion_audit_source ON ingestion_audit(source_name, started_at);: matching engine output (reconciliation/matching_engine.py).
 -- Tolerance-based field matching (price/quantity/side), superseding
 -- vw_TradeReconciliationStatus's exact-equality check for anything that
 -- needs the real classification. 'missing' rows still carry a real
@@ -175,11 +168,9 @@ CREATE TABLE reconciliation_results (
     computed_at          DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT uq_reconciliation_trade_stage UNIQUE (trade_id, stage)
 );
-CREATE INDEX ix_reconciliation_status ON reconciliation_results(stage, match_status);
-
--- Step 6: industry-grounded root-cause labels (root_cause/taxonomy.py),
+CREATE INDEX ix_reconciliation_status ON reconciliation_results(stage, match_status);: industry-grounded root-cause labels (root_cause/taxonomy.py),
 -- crosswalked from reconciliation_results + lifecycle_events. Ground
--- truth for Step 7's rule-based vs. ML classifier comparison.
+-- truth for rule-based vs. ML classifier comparison.
 CREATE TABLE root_cause_labels (
     label_id            BIGINT IDENTITY(1,1) PRIMARY KEY,
     trade_id             BIGINT NOT NULL REFERENCES trades(trade_id),
@@ -192,9 +183,7 @@ CREATE TABLE root_cause_labels (
     computed_at           DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     CONSTRAINT uq_root_cause_trade_stage UNIQUE (trade_id, stage)
 );
-CREATE INDEX ix_root_cause_category ON root_cause_labels(root_cause_category);
-
--- Step 9: invoice reconciliation (invoice_recon/generate_invoice.py).
+CREATE INDEX ix_root_cause_category ON root_cause_labels(root_cause_category);: invoice reconciliation (invoice_recon/generate_invoice.py).
 -- Expected fee computed from real trade notional against real published
 -- fee schedules (data/real/fee_schedules.py); actual_fee_usd is the
 -- synthetically perturbed "received invoice" side. actual_fee_usd/delta_usd
@@ -212,9 +201,7 @@ CREATE TABLE invoice_reconciliation (
     injected_discrepancy_type NVARCHAR(30) NOT NULL,
     computed_at              DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
 );
-CREATE INDEX ix_invoice_venue_status ON invoice_reconciliation(venue, match_status);
-
--- Step 10: multi-day rolling reconciliation with break aging
+CREATE INDEX ix_invoice_venue_status ON invoice_reconciliation(venue, match_status);: multi-day rolling reconciliation with break aging
 -- (aging/break_aging.py). break_aging_daily is the rolling view (one row
 -- per break per observation date while still open); break_aging_summary
 -- is the aggregate view (one row per break, final resolution outcome).
@@ -246,9 +233,7 @@ CREATE TABLE break_aging_summary (
     max_escalation_tier_reached        NVARCHAR(30) NOT NULL,
     CONSTRAINT uq_aging_summary_trade_stage UNIQUE (trade_id, stage)
 );
-CREATE INDEX ix_aging_summary_open ON break_aging_summary(still_open_at_window_end, max_escalation_tier_reached);
-
--- Step 11: immutable, append-only audit log -- architecturally enforced
+CREATE INDEX ix_aging_summary_open ON break_aging_summary(still_open_at_window_end, max_escalation_tier_reached);: immutable, append-only audit log -- architecturally enforced
 -- via SQL Server 2022's native LEDGER feature, not an application-level
 -- convention. Live-verified in this project (sql/README.md "Status"):
 -- UPDATE and DELETE against an append-only ledger table both fail with
@@ -264,9 +249,7 @@ CREATE TABLE audit_log (
     details       NVARCHAR(MAX) NULL,
     recorded_at   DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
 ) WITH (LEDGER = ON (APPEND_ONLY = ON));
-CREATE INDEX ix_audit_log_event ON audit_log(event_type, event_at);
-
--- Step 14: alerts triggered by monitoring/alert_rules.py, scanning the
+CREATE INDEX ix_audit_log_event ON audit_log(event_type, event_at);: alerts triggered by monitoring/alert_rules.py, scanning the
 -- live schema against disclosed thresholds. Mutable (unlike audit_log) --
 -- alerts get acknowledged in real ops, an audit log entry never should.
 CREATE TABLE alerts (

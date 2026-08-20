@@ -1,14 +1,14 @@
-"""Step 10: multi-day rolling reconciliation with break aging and
+"""Multi-day rolling reconciliation with break aging and
 escalation, over the real trades' actual date.
 
 Real-data constraint, disclosed rather than worked around silently: the
 real trade data (data/real/trades_real.csv) spans a single real calendar
-day (a ~1-hour live-market pull, Step 1). The plan calls for a genuine
+day (a ~1-hour live-market pull). The plan calls for a genuine
 multi-day rolling cycle, which real wall-clock time can't provide within
 one session -- so this module simulates running the daily reconciliation
 batch on a sequence of real, un-fabricated calendar dates *after* the
 real trade date, checking each break's age and status as of each one.
-This is the same disclosure pattern Step 13 (performance/) uses for
+This is the same disclosure pattern performance/ uses for
 volume: a disclosed technique layered on real data, not fabricated trades
 or fabricated dates -- every date here is a real calendar date, just used
 as a simulated "as of" checkpoint rather than a date real trading

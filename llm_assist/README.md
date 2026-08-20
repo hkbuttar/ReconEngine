@@ -1,4 +1,4 @@
-# llm_assist/ — LLM-Assisted Break Explanation & NL Query (Step 8)
+# llm_assist/ — LLM-Assisted Break Explanation & NL Query
 
 Two modules, both live-tested against the real database and a real
 Claude API key (`.env`, gitignored — never committed).
@@ -10,10 +10,9 @@ synthetic breaks a rule already resolves cleanly:
 
 1. **Fuzzy-match candidates** (`reconciliation/fuzzy_match_*.csv`) —
    an orphan record with more than one plausible real-trade match. 50 of
-   110 clearing orphans have ≥2 candidates (Step 5's README).
+   110 clearing orphans have ≥2 candidates.
 2. **"Timing breach, but on_time"** — a record genuinely late relative to
-   normal processing, but still inside the looser T+1 settlement window
-   (Step 7's README).
+   normal processing, but still inside the looser T+1 settlement window.
 
 Model: `claude-haiku-4-5-20251001` — cheap, sufficient for templated
 synthesis over facts the prompt already provides in full. The system

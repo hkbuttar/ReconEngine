@@ -1,6 +1,6 @@
--- Step 5 load: reconciliation_results (reconciliation/matching_engine.py
+ load: reconciliation_results (reconciliation/matching_engine.py
 -- output). Same temp-table + idempotent-anti-join pattern as
--- sql/ingest_*.sql (Step 4). Assumes trades is already loaded.
+-- sql/ingest_*.sql. Assumes trades is already loaded.
 
 CREATE TABLE #stg_reconciliation (
     trade_id_ref NVARCHAR(60), match_status NVARCHAR(20), price_diff_pct NVARCHAR(20),

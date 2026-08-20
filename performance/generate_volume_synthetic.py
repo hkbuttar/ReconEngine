@@ -1,5 +1,5 @@
-"""Step 13: generates clearing/confirm records for the volume-scaled
-trade dataset (volume_trades.csv), reusing Step 2's actual
+"""Generates clearing/confirm records for the volume-scaled
+trade dataset (volume_trades.csv), reusing actual
 generate_synthetic_records.generate() function against the larger input
 rather than duplicating the break-injection logic -- same disclosed
 discrepancy rates and methodology, just at volume.
