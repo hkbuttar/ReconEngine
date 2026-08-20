@@ -292,8 +292,22 @@ data, not as a benchmark for any real operations team to compare against.
       findings as an executable notebook (41 cells, 0 errors,
       independently verified end to end) plus a dedicated section
       cataloging every real bug found and fixed across the build.
-- [ ] Backend (FastAPI)
-- [ ] Deployment
+- [x] **Backend (FastAPI).** 11 endpoints — NL query, 5 monitoring/alert
+      endpoints, lineage graph + per-trade trace, trade/break lookups —
+      all live-tested against the real DB. Found and fixed a real bug
+      during testing: an alert's own data contained the delimiter used to
+      parse `sqlcmd` output, silently dropping 254 rows (438 → 692 after
+      the fix). See `backend/README.md`.
+- [x] **Deployment.** `Dockerfile` + `render.yaml` for the FastAPI backend,
+      dual-mode DB access (`backend/db_client.py`) — real `pyodbc` in
+      production, local docker-exec fallback for dev. The `pyodbc` path
+      was actually built and run locally against the real DB (not left
+      untested — the macOS ODBC install blocker doesn't apply inside the
+      Linux deploy container), returning identical real numbers. Found
+      and fixed 2 real bugs along the way (a Debian repo signing
+      mismatch, an opaque 500 on missing config). SQL Server hosting
+      options and what still needs your own Azure/Render account
+      documented in `DEPLOYMENT.md`.
 - [ ] README (this file, expanded with Results/Limitations/Future Work)
 
 Each unbuilt directory currently holds a stub `README.md` pointing at the

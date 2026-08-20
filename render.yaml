@@ -1,0 +1,19 @@
+# Render Blueprint for the FastAPI backend. Render has no managed SQL
+# Server offering (Postgres/Redis/Key-Value only) -- unlike this
+# project's sibling repos, which use Render's managed Postgres directly,
+# this service's database has to be hosted elsewhere and wired in via
+# RECONENGINE_ODBC_CONNECTION_STRING (see DEPLOYMENT.md for the real
+# hosting options and why: sql/README.md's SQL Server Server is the
+# project's whole point, not swappable for Postgres).
+services:
+  - type: web
+    name: reconengine-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: RECONENGINE_ODBC_CONNECTION_STRING
+        sync: false   # set manually in the Render dashboard -- points at wherever SQL Server actually runs
+      - key: ANTHROPIC_API_KEY
+        sync: false   # set manually -- required only for GET /query

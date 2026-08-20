@@ -1,0 +1,10 @@
+# Lean subset of requirements.txt actually imported by backend/ (and the
+# lineage/llm_assist modules it wraps) -- no pandas/xgboost/lightgbm/
+# scikit-learn/matplotlib in the deploy image; those are only needed for
+# the research pipeline and notebook, not for serving the API.
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+anthropic>=0.34
+python-dotenv>=1.0
+pyodbc>=5.1
