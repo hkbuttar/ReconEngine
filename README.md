@@ -169,6 +169,88 @@ architecture and the rigor as the transferable result, and the exact
 percentages as illustrative of a system exercised end-to-end on real
 data, not as a benchmark for any real operations team to compare against.
 
+## Limitations
+
+Restated plainly, not buried in each area's own README:
+
+- **The synthetic boundary is real and load-bearing.** Every number that
+  depends on the clearing/confirm discrepancy layer, the invoice "actual
+  received" side, or a break's resolution date rests on disclosed,
+  synthetically generated data — not because the mechanics are fake, but
+  because no public source publishes what real firms' internal mismatches
+  or remediation timelines look like (`data/synthetic/README.md`).
+  Nothing here should be read as "this is what a real trading desk's
+  break rate is."
+- **Every tolerance and threshold is a disclosed judgment call, calibrated
+  against this project's own data — not an industry standard.** The
+  0.01% matching tolerance, the $0.01/10% invoice materiality rule, the
+  85% low-match-rate alert floor, the aging escalation tiers (loosely
+  adapted from Reg SHO, not a literal transplant) — all chosen to be
+  large enough to exercise the mechanism and small enough not to mask a
+  genuine break, on this dataset specifically.
+- **The real trade data is a modest, single-asset-class sample**: ~11,000
+  crypto spot trades over roughly 7 minutes of live market activity, not
+  an independent high-volume dataset. The 200,000-trade performance
+  benchmark scales it via disclosed replication (real price/quantity/side,
+  synthetic ids) — a real technique for load-testing the pipeline's
+  mechanics, not evidence of what real daily volume looks like.
+- **Performance numbers are specific to the hardware they were measured
+  on** — SQL Server 2022 running under x86 emulation on Apple Silicon,
+  documented in `sql/README.md` and `performance/README.md`. A native
+  deployment would likely be faster; not measured here.
+- **The taxonomy and settlement citations are grounded in equities/
+  traditional-finance conventions (SEC T+1, FIX Protocol, SWIFT MT548,
+  Reg SHO) applied to crypto trade data** — a disclosed, deliberate
+  cross-domain choice (`data/real/settlement_rules.py`), not a claim that
+  crypto trades actually settle T+1 or that these citations are
+  crypto-specific.
+- **The Qlik dashboard is fully specified but only partially confirmed
+  live.** The load script, data model, and all 4 sheets are built and
+  documented (`qlik/README.md`); getting it running end to end depends on
+  your own Qlik Cloud account and is still in progress as of this
+  writing.
+- **The `pyodbc` production DB path was verified over Docker's local
+  bridge network, not over the open internet against a real Azure SQL
+  instance** (`DEPLOYMENT.md`) — the connection string is the only thing
+  that would change, but that specific configuration hasn't been
+  exercised.
+- **LLM-assisted features depend on a third-party API** (Claude) whose
+  behavior isn't pinned or version-locked beyond the model ID used —
+  outputs are explicitly disclosed as assistive, not authoritative
+  (`llm_assist/README.md`), and re-running the same prompt later isn't
+  guaranteed to produce byte-identical output.
+
+## Future Work
+
+- **Real-time streaming ingestion** via the same Kafka infrastructure
+  already built in `streamalpha` (this project family's sibling repo) —
+  the natural next step from this project's batch-oriented ingestion
+  pipeline to something that reconciles trades as they happen, not after
+  the fact.
+- **Multi-currency / multi-asset-class support.** Every trade here is a
+  USD-quoted (or USDT, treated 1:1) crypto spot trade — extending to
+  equities, FX, or multiple settlement currencies would exercise the
+  currency-conversion and cross-asset-class edges this project's single-
+  asset-class data never touches.
+- **Expanded regulatory reporting format coverage.** The exception report
+  (`audit_trail/exception_report.py`) is structurally grounded in SWIFT
+  MT548's coded-reason-field precedent, but only one MT548 code (`NMAS`)
+  was independently verified during this build — a real next step would
+  verify the rest of that code list (or the equivalent FIX/ISO 20022
+  vocabulary) directly rather than reusing this project's own taxonomy
+  codes in that structural role.
+- **A real firm partnership for genuinely proprietary validation data,**
+  if one ever became accessible — the one thing that would let this
+  project's matching/taxonomy/aging mechanics be validated against real
+  clearing-firm and exchange-confirmation mismatches instead of the
+  necessarily-disclosed-synthetic layer this build is anchored to.
+- **A tighter or ML-assisted fuzzy-match resolution.** The matching
+  engine's own finding (`reconciliation/README.md`) was that a 5%/1-hour fuzzy-match
+  tolerance is loose enough to spuriously match almost anything in a
+  dense real trade tape — a real improvement here would be a learned
+  matcher (or a much tighter, deliberately-tuned tolerance) rather than
+  the fixed-tolerance heuristic used now.
+
 ## Status
 
 - [x] **Environment & Data Acquisition.** Real trade data pulled
@@ -308,8 +390,15 @@ data, not as a benchmark for any real operations team to compare against.
       mismatch, an opaque 500 on missing config). SQL Server hosting
       options and what still needs your own Azure/Render account
       documented in `DEPLOYMENT.md`.
-- [ ] README (this file, expanded with Results/Limitations/Future Work)
+- [x] **README.** Expanded with Results & Honest Comparison, Limitations
+      (the synthetic boundary restated plainly, every threshold as a
+      disclosed judgment call, hardware-specific performance numbers),
+      and Future Work (streaming ingestion, multi-asset-class support,
+      deeper regulatory format coverage, a real-firm validation
+      partnership, a tighter fuzzy-match resolution) — this file, complete.
 
-Each unbuilt directory currently holds a stub `README.md` pointing at the
-step that will fill it in — see this file's Status list above for what's
-next.
+Every item on this project's original build plan is complete. The one
+open thread is the live Qlik Cloud dashboard (`qlik/README.md`) — fully
+specified and being connected interactively, not something scriptable
+from here. Everything else in the Status list above is built, live-
+tested against real data, and documented in its own directory's README.
