@@ -1,9 +1,12 @@
-# Render Blueprint for ReconEngine: the FastAPI backend plus its own SQL
-# Server instance. Render has no managed SQL Server offering (Postgres/
-# Redis/Key-Value only -- unlike this project's sibling repos, which use
-# Render's managed Postgres directly), so SQL Server runs here as a second
-# Docker-based service on the same platform (sql/deploy/), rather than
-# reaching out to a separate cloud provider like Azure SQL.
+# Render Blueprint for the FastAPI backend. Render has no managed SQL
+# Server offering (Postgres/Redis/Key-Value only), and SQL Server can't
+# run as a Render container service at all -- confirmed by an actual
+# deploy attempt: Render's sandboxed container runtime drops Linux
+# capabilities sqlservr's binary needs at startup ("Operation not
+# permitted" on exec, a documented Render platform limitation hit by
+# other unrelated images too, not something fixable via this file). SQL
+# Server runs on Fly.io instead (fly.toml, same sql/deploy/ image), wired
+# in via RECONENGINE_ODBC_CONNECTION_STRING -- see DEPLOYMENT.md.
 services:
   - type: web
     name: reconengine-backend
@@ -13,28 +16,6 @@ services:
     healthCheckPath: /health
     envVars:
       - key: RECONENGINE_ODBC_CONNECTION_STRING
-        sync: false   # set manually in the Render dashboard -- see DEPLOYMENT.md for the exact value (points at reconengine-sql-db's internal hostname)
+        sync: false   # set manually in the Render dashboard -- points at the Fly.io SQL Server app, see DEPLOYMENT.md
       - key: ANTHROPIC_API_KEY
         sync: false   # set manually -- required only for GET /query
-
-  # Private service (no public URL, reachable only from other services in
-  # this Blueprint) -- self-initializes the reconengine database on first
-  # boot (sql/deploy/entrypoint.sh: schema, procs, views, full real+
-  # synthetic data load), then just starts SQL Server normally on every
-  # later restart since the persistent disk keeps the data directory.
-  - type: pserv
-    name: reconengine-sql-db
-    env: docker
-    dockerfilePath: ./sql/deploy/Dockerfile
-    dockerContext: .
-    envVars:
-      - key: ACCEPT_EULA
-        value: "Y"
-      - key: MSSQL_SA_PASSWORD
-        sync: false   # set manually in the Render dashboard -- must match the SA password embedded in RECONENGINE_ODBC_CONNECTION_STRING on reconengine-backend
-      - key: PORT
-        value: "1433"   # SQL Server always listens on 1433; the mssql/server image has no EXPOSE, so without this Render defaults private-service routing to its generic 10000 fallback, which nothing is listening on
-    disk:
-      name: reconengine-sql-data
-      mountPath: /var/opt/mssql
-      sizeGB: 10

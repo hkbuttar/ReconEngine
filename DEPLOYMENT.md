@@ -6,8 +6,7 @@ needs your own account/credentials.
 
 ## SQL Server
 
-Three real hosting options, in order of how this project actually used
-them:
+Real hosting options, in order of how this project actually used them:
 
 1. **Local Docker** (what every other step in this project runs
    against) — `sql/README.md` has the full reproduce steps.
@@ -15,14 +14,26 @@ them:
    durable.
 2. **SQL Server Express**, locally, no Docker — same image family, free,
    but a real install (not scripted here; Microsoft's own installer).
-3. **Render private service** (`sql/deploy/`) — the real path this
-   project deploys with. Render has no managed SQL Server offering, so
-   instead of reaching out to a separate cloud provider (e.g. Azure SQL),
-   SQL Server runs as a second Docker-based service on the same Render
-   account, declared as `type: pserv` in `render.yaml` alongside the
-   backend web service — private (no public URL, reachable only from
-   other services in the same Blueprint), with a persistent disk mounted
-   at `/var/opt/mssql` so data survives restarts.
+3. **Render private service — tried, doesn't work, kept here as a
+   documented dead end.** Render has no managed SQL Server offering, so
+   the first attempt ran SQL Server as a second Docker-based service on
+   the same Render account (`type: pserv`). A real deploy attempt failed:
+   `/opt/mssql/bin/sqlservr: Operation not permitted` on startup. Root
+   cause confirmed via other unrelated images hitting the identical
+   error on Render (Grafana Alloy, Coturn) — Render's container sandbox
+   drops Linux capabilities `sqlservr`'s binary needs at exec time, the
+   same failure mode documented for SQL Server under Kubernetes
+   "restricted" Pod Security Standards. Not fixable from `render.yaml`;
+   Render doesn't expose a way to add capabilities back.
+4. **Fly.io** (`fly.toml`) — the real path this project deploys with.
+   Fly runs actual Firecracker microVMs rather than a stripped-capability
+   container sandbox, so the identical `sql/deploy/` image that failed on
+   Render runs unmodified. Reachable from Render's backend over the
+   public internet on port 1433 (Render and Fly are different platforms,
+   so Fly's private 6PN network doesn't help here — the DB is secured by
+   the SA password instead, the same exposure model Azure SQL would have
+   had), with a persistent volume mounted at `/var/opt/mssql` so data
+   survives restarts.
 
 ### The self-initializing deploy image (`sql/deploy/`)
 
@@ -74,11 +85,14 @@ labels...`) — invalid syntax that broke `schema.sql` silently under
 `-- ` prefix at all 7 affected lines (confirmed via targeted grep that no
 other file in the repo has the same corruption signature).
 
-**Not yet verified**: an actual Render deploy of this service (needs
-your Render account, same reasoning as everything else in this project
-that stops at "needs your account") — verified locally against a real
-standalone container instead, which is the same image `render.yaml`
-builds.
+**Not yet verified**: an actual Fly.io deploy of this service (needs your
+Fly account, same reasoning as everything else in this project that
+stops at "needs your account") — verified locally against a real
+standalone container instead, which is the same image `fly.toml` builds.
+Expected to work unmodified since the Render failure was specifically a
+container-sandbox capability restriction that Fly's microVM model
+doesn't impose (unlike the Render attempt above, which was verified to
+fail for that exact reason).
 
 Azure SQL (or any other reachable SQL Server) still works as a drop-in
 alternative if preferred — same schema/load sequence, just point
@@ -159,34 +173,42 @@ connection specifically (verified against the local container instead,
 over the same `pyodbc` code path — the connection string is the only
 thing that would change).
 
-### Deploy to Render
+### Deploy SQL Server to Fly.io (do this first)
+
+1. Install `flyctl` and `flyctl auth login` (needs a Fly account).
+2. `fly.toml`'s `app` name (`reconengine-sql-db`) must be globally unique
+   across all Fly accounts — edit it if that name is taken.
+3. Create the persistent volume before the first deploy (must match
+   `fly.toml`'s region):
+   `flyctl volumes create mssql_data --region iad --size 10`
+4. Set the SA password as a Fly secret (not committed, same reasoning as
+   `render.yaml`'s `sync: false` entries):
+   `flyctl secrets set MSSQL_SA_PASSWORD='ReconEngine!2026'`
+5. Deploy: `flyctl deploy` (build context is the repo root — `fly.toml`
+   lives there specifically so the Dockerfile can still reach the
+   already-committed CSVs under `data/`, `lifecycle/`, etc., same as the
+   Render attempt needed).
+6. First boot runs the full init sequence (schema + real/synthetic data
+   load) automatically before SQL Server is queryable — takes longer than
+   a normal cold start; give it a few minutes. `flyctl logs` shows the
+   same init messages verified locally (see above).
+7. Note the app's public hostname: `<app-name>.fly.dev` (e.g.
+   `reconengine-sql-db.fly.dev`) — needed for the backend's connection
+   string in the next section.
+
+### Deploy the backend to Render
 
 1. Push this repo to GitHub (Render's Blueprint deploy reads from a
    connected git repo).
 2. In the Render dashboard: **New +** → **Blueprint**, point it at the
-   repo. Render reads `render.yaml` and creates both services:
-   `reconengine-sql-db` (private, `type: pserv`, persistent disk) and
-   `reconengine-backend` (public web service).
-3. Set `MSSQL_SA_PASSWORD` on `reconengine-sql-db` in the Render
-   dashboard (`sync: false`, not committed) — `ACCEPT_EULA` is already
-   set in `render.yaml`.
-4. Set `RECONENGINE_ODBC_CONNECTION_STRING` and `ANTHROPIC_API_KEY` on
-   `reconengine-backend`. The connection string points at the SQL
-   service's internal hostname (Render's private-service DNS naming —
-   confirm the exact host in the dashboard once `reconengine-sql-db` is
-   provisioned) and must use the *same* password set in step 3, e.g.:
-   `DRIVER={ODBC Driver 18 for SQL Server};SERVER=reconengine-sql-db:1433;DATABASE=reconengine;UID=sa;PWD=<same password as MSSQL_SA_PASSWORD>;TrustServerCertificate=yes;`
-   The port must be `1433`, not whatever generic port the dashboard shows
-   by default — `render.yaml` sets `PORT=1433` on `reconengine-sql-db`
-   specifically because the official SQL Server image doesn't declare an
-   `EXPOSE`, so without that override Render falls back to its generic
-   `10000` default, which nothing inside the container is listening on.
-5. First boot of `reconengine-sql-db` runs the full init sequence (schema
-   + real/synthetic data load) automatically — no manual step needed, but
-   it takes longer than a normal SQL Server cold start; give it a few
-   minutes before expecting `reconengine-backend`'s `/health` to succeed.
-6. Free/starter plan caveats: `reconengine-backend` on the free web plan
-   spins down after 15 minutes idle (~30–60s cold start on the next
-   request); `reconengine-sql-db` as a private service with a disk
-   requires a paid tier (Render doesn't offer free persistent disks) —
-   worth knowing before relying on this longer-term.
+   repo. Render reads `render.yaml` and creates `reconengine-backend`.
+3. Set `RECONENGINE_ODBC_CONNECTION_STRING` and `ANTHROPIC_API_KEY` on
+   `reconengine-backend`. The connection string points at the Fly.io
+   hostname from the previous section, port `1433`, with the same
+   password set via `flyctl secrets set`:
+   `DRIVER={ODBC Driver 18 for SQL Server};SERVER=reconengine-sql-db.fly.dev,1433;DATABASE=reconengine;UID=sa;PWD=<same password as the Fly secret>;TrustServerCertificate=yes;`
+4. Free/paid plan caveats: `reconengine-backend` on the free Render web
+   plan spins down after 15 minutes idle (~30–60s cold start on the next
+   request); the Fly.io SQL Server app with a persistent volume needs a
+   paid Fly plan (no free persistent volumes) — worth knowing before
+   relying on this longer-term.

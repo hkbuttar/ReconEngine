@@ -1,0 +1,39 @@
+# Fly.io app for the same self-initializing SQL Server image as
+# sql/deploy/ -- unchanged from the version verified locally end to end
+# (Docker build + run + row-count check against sql/README.md's known
+# baseline). Runs here instead of as a Render private service because
+# Render's container sandbox drops Linux capabilities sqlservr's binary
+# needs at startup (confirmed: "Operation not permitted" exec failure,
+# a documented Render platform limitation, not a bug in this image).
+# Fly.io runs actual Firecracker microVMs rather than a stripped-
+# capability container sandbox, so the same image that works in plain
+# local Docker works here unmodified.
+#
+# App name must be globally unique across all Fly accounts -- change it
+# below if "reconengine-sql-db" is already taken.
+app = "reconengine-sql-db"
+primary_region = "iad"
+
+[build]
+  dockerfile = "sql/deploy/Dockerfile"
+
+[env]
+  ACCEPT_EULA = "Y"
+
+# MSSQL_SA_PASSWORD is set as a Fly secret (`flyctl secrets set`), not
+# committed here -- same reasoning as render.yaml's sync: false entries.
+
+[[mounts]]
+  source = "mssql_data"
+  destination = "/var/opt/mssql"
+
+# Raw TCP service, not HTTP -- Render's backend is a different platform
+# and can't reach Fly's private 6PN network, so this is deliberately
+# public, secured by the SA password (same exposure model Azure SQL
+# would have had).
+[[services]]
+  internal_port = 1433
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 1433
