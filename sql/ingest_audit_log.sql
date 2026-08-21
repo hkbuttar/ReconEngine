@@ -1,4 +1,4 @@
- load: audit_log (audit_trail/build_audit_log.py output). Same
+-- load: audit_log (audit_trail/build_audit_log.py output). Same
 -- temp-table + BULK INSERT pattern as sql/ingest_*.sql, but loads into a
 -- LEDGER table -- staged through a plain temp table first rather than
 -- BULK INSERT directly into the ledger table, sidestepping any

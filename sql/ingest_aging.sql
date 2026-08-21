@@ -1,4 +1,4 @@
- load: break_aging_daily + break_aging_summary
+-- load: break_aging_daily + break_aging_summary
 -- (aging/break_aging.py output). Same temp-table + idempotent-anti-join
 -- pattern as sql/ingest_*.sql.
 

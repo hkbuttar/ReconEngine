@@ -1,4 +1,4 @@
- load: lineage_events (lineage/build_lineage.py output) --
+-- load: lineage_events (lineage/build_lineage.py output) --
 -- table-level edges, 18 rows. source_pk/target_pk are 0 (sentinel for
 -- "table-level, not row-level" -- see lineage/build_lineage.py's
 -- docstring). Small, static graph -- reloaded fresh each run rather than

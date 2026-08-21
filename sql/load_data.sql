@@ -1,4 +1,4 @@
- validation load: real trades + synthetic clearing/confirm CSVs
+-- validation load: real trades + synthetic clearing/confirm CSVs
 -- into the schema, via staging tables + BULK INSERT. Not the full -- ETL (no data-quality checks / ingestion audit yet) -- this just proves
 -- the schema holds real data end-to-end. Assumes trades_real.csv,
 -- clearing_statements.csv, exchange_confirms.csv are already copied to

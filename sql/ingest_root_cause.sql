@@ -1,4 +1,4 @@
- load: root_cause_labels (root_cause/taxonomy.py output). Same
+-- load: root_cause_labels (root_cause/taxonomy.py output). Same
 -- temp-table + idempotent-anti-join pattern as sql/ingest_*.sql.
 
 CREATE TABLE #stg_root_cause (
