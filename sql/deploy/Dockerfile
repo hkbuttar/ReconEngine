@@ -20,7 +20,7 @@ COPY sql/schema.sql sql/procs.sql sql/views.sql sql/monitoring_views.sql \
      sql/ingest_trades.sql sql/ingest_clearing.sql sql/ingest_confirms.sql \
      sql/load_lifecycle.sql sql/ingest_reconciliation.sql sql/ingest_root_cause.sql \
      sql/ingest_invoice.sql sql/ingest_aging.sql sql/ingest_audit_log.sql \
-     sql/ingest_lineage.sql /usr/src/reconengine-init/sql/
+     sql/ingest_lineage.sql sql/populate_alerts.sql /usr/src/reconengine-init/sql/
 COPY data/real/trades_real.csv /usr/src/reconengine-init/data/real/trades_real.csv
 COPY data/synthetic/clearing_statements.csv data/synthetic/exchange_confirms.csv /usr/src/reconengine-init/data/synthetic/
 COPY lifecycle/lifecycle_events.csv lifecycle/settlements.csv lifecycle/accounting_feed.csv /usr/src/reconengine-init/lifecycle/

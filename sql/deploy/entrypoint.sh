@@ -72,6 +72,13 @@ else
     cp "$INIT_DIR/lineage/lineage_events.csv" /tmp/lineage_events.csv
     $SQLCMD -S localhost -U sa -P "$SA_PASSWORD" -C -d reconengine -i "$INIT_DIR/sql/ingest_lineage.sql"
 
+    # alerts: monitoring/alert_rules.py's rule logic, ported to plain SQL
+    # (see sql/populate_alerts.sql) since that script's own docker-exec
+    # sqlcmd path isn't available inside this container. Runs last since
+    # it reads from break_aging_summary, invoice_reconciliation, and
+    # vw_MatchRateByStage, all populated by the steps above.
+    $SQLCMD -S localhost -U sa -P "$SA_PASSWORD" -C -d reconengine -i "$INIT_DIR/sql/populate_alerts.sql"
+
     echo "reconengine database initialized."
 fi
 
