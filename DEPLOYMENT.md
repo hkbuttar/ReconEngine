@@ -183,7 +183,15 @@ thing that would change).
    `flyctl volumes create mssql_data --region iad --size 10`
 4. Set the SA password as a Fly secret (not committed, same reasoning as
    `render.yaml`'s `sync: false` entries):
-   `flyctl secrets set MSSQL_SA_PASSWORD='ReconEngine!2026'`
+   `flyctl secrets set MSSQL_SA_PASSWORD='ReconEngine#2026'`
+   Avoid `!` in this password specifically — zsh (and interactive bash)
+   treats `!` as history expansion even inside single quotes, silently
+   substituting whatever history event number follows it (e.g. `!2026`
+   can get replaced with an unrelated past command). This isn't a
+   hypothetical: it happened during this project's own Fly.io deploy,
+   baking a garbled password into the database on first boot and
+   requiring a volume wipe + redeploy to recover. `#` or another
+   shell-inert symbol avoids the whole class of bug.
 5. Deploy: `flyctl deploy` (build context is the repo root — `fly.toml`
    lives there specifically so the Dockerfile can still reach the
    already-committed CSVs under `data/`, `lifecycle/`, etc., same as the

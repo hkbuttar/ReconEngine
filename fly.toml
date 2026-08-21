@@ -27,6 +27,15 @@ primary_region = "iad"
   source = "mssql_data"
   destination = "/var/opt/mssql"
 
+# SQL Server refuses to start below 2GB RAM ("This program requires a
+# machine with at least 2000 megabytes of memory") -- Fly's default
+# machine size is smaller than that, so this must be set explicitly.
+# 4gb rather than the bare 2gb floor for headroom; drop to "shared-cpu-1x"
+# / "2gb" to cut cost once this is confirmed stable.
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "4gb"
+
 # Raw TCP service, not HTTP -- Render's backend is a different platform
 # and can't reach Fly's private 6PN network, so this is deliberately
 # public, secured by the SA password (same exposure model Azure SQL
