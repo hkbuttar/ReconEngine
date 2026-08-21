@@ -1,8 +1,11 @@
 # Deployment
 
 Three independent pieces: SQL Server, the Qlik dashboard, and the FastAPI
-backend. Each documented below with what's actually verified vs. what
-needs your own account/credentials.
+backend. SQL Server (Fly.io) and the FastAPI backend (Render) are both
+live and verified against real data; the Qlik dashboard is set up
+interactively in Qlik Cloud, not something scriptable from here. Each
+piece documented below with what's actually verified vs. what needs your
+own account/credentials.
 
 ## SQL Server
 
@@ -85,14 +88,41 @@ labels...`) — invalid syntax that broke `schema.sql` silently under
 `-- ` prefix at all 7 affected lines (confirmed via targeted grep that no
 other file in the repo has the same corruption signature).
 
-**Not yet verified**: an actual Fly.io deploy of this service (needs your
-Fly account, same reasoning as everything else in this project that
-stops at "needs your account") — verified locally against a real
-standalone container instead, which is the same image `fly.toml` builds.
-Expected to work unmodified since the Render failure was specifically a
-container-sandbox capability restriction that Fly's microVM model
-doesn't impose (unlike the Render attempt above, which was verified to
-fail for that exact reason).
+**Deployed and verified live on Fly.io.** As expected, the image runs
+unmodified — the Render failure above was specifically a container-
+sandbox capability restriction, and Fly's microVMs don't impose it.
+Two real bugs found only at this stage, neither reproducible in local
+Docker testing:
+
+- **SQL Server's hard 2GB memory floor.** Fly's default machine size is
+  smaller than that; `sqlservr` refused to start
+  (`This program requires a machine with at least 2000 megabytes of
+  memory.`). Fixed by adding an explicit `[[vm]]` block to `fly.toml`
+  (`shared-cpu-2x`, `4gb`) — not something local Docker (which just uses
+  whatever RAM the host has) would ever surface.
+- **`alerts` was silently empty in production.** `monitoring/alert_rules.py`
+  shells out to `docker exec reconengine-sql sqlcmd`, which doesn't exist
+  inside the deploy container — so on Fly, first-boot init completed
+  "successfully" (per the always-0 `sqlcmd` exit code) while never
+  populating `alerts` at all. Found via the *deployed backend's*
+  `/monitoring/alerts` returning `[]` instead of 692 — a gap invisible
+  in every earlier local-only verification, since local testing always
+  ran `alert_rules.py` against the long-lived dev container directly.
+  Fixed by porting the rule SQL into `sql/populate_alerts.sql`, run as
+  a normal init step in `entrypoint.sh`. Re-verified after the fix:
+  254 `CRITICAL_AGED_BREAK` + 438 `MATERIAL_INVOICE_DISCREPANCY` = 692,
+  matching the baseline exactly.
+
+A separate, unrelated bug surfaced during the deploy sequence itself, not
+the image: zsh's history expansion treats `!` as a special character even
+inside single quotes, so `flyctl secrets set MSSQL_SA_PASSWORD='...!2026'`
+typed interactively got silently mangled into an unrelated past shell
+command, baking a garbled `sa` password into the database on first boot.
+Recovered by wiping the volume and redeploying with a `!`-free password
+(`ReconEngine#2026`, used from here on for Fly specifically) — not a bug
+in this project's code, but a real, non-obvious footgun worth documenting
+since it produced a confusing "server not found" / "login failed" trail
+before the actual cause was clear.
 
 Azure SQL (or any other reachable SQL Server) still works as a drop-in
 alternative if preferred — same schema/load sequence, just point
@@ -166,12 +196,23 @@ repo key — the build failed outright on the first attempt. Fixed by
 pinning `python:3.11-slim-bookworm` explicitly rather than the floating
 tag.
 
-**Not verified here**: an actual `render.yaml` deploy (needs your GitHub
-repo connected + your Render account — same reasoning as everything else
-in this project that stops at "needs your account") and a real Azure SQL
-connection specifically (verified against the local container instead,
-over the same `pyodbc` code path — the connection string is the only
-thing that would change).
+**Deployed and verified live on Render**, connected to the real SQL
+Server instance on Fly.io — not just the local pyodbc test above:
+
+```bash
+curl https://reconengine-backend.onrender.com/health
+# -> {"status":"ok"}
+curl https://reconengine-backend.onrender.com/monitoring/match-rate
+# -> [{"stage":"clearing",...,"match_rate_pct":"90.95"},{"stage":"confirm",...,"match_rate_pct":"91.55"}]
+curl https://reconengine-backend.onrender.com/monitoring/alerts | jq length
+# -> 692
+```
+
+Same real numbers as every other verification in this project, this
+time from a public URL neither platform account existed before this
+project started. Azure SQL specifically was never connected to (Fly.io
+was used instead — see the SQL Server section above); the connection
+string is the only thing that would change if swapped in.
 
 ### Deploy SQL Server to Fly.io (do this first)
 

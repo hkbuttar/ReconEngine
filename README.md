@@ -380,16 +380,21 @@ Restated plainly, not buried in each area's own README:
       during testing: an alert's own data contained the delimiter used to
       parse `sqlcmd` output, silently dropping 254 rows (438 → 692 after
       the fix). See `backend/README.md`.
-- [x] **Deployment.** `Dockerfile` + `render.yaml` for the FastAPI backend,
-      dual-mode DB access (`backend/db_client.py`) — real `pyodbc` in
-      production, local docker-exec fallback for dev. The `pyodbc` path
-      was actually built and run locally against the real DB (not left
-      untested — the macOS ODBC install blocker doesn't apply inside the
-      Linux deploy container), returning identical real numbers. Found
-      and fixed 2 real bugs along the way (a Debian repo signing
-      mismatch, an opaque 500 on missing config). SQL Server hosting
-      options and what still needs your own Azure/Render account
-      documented in `DEPLOYMENT.md`.
+- [x] **Deployment.** Actually live, not just built: SQL Server on Fly.io
+      (`fly.toml`, `sql/deploy/`, self-initializing on first boot) and the
+      FastAPI backend on Render (`Dockerfile` + `render.yaml`, real
+      `pyodbc` in production). Real hosted endpoint returns real numbers:
+      `curl https://reconengine-backend.onrender.com/monitoring/match-rate`
+      → 90.95%/91.55%, identical to every other verification in this
+      project. Render private services turned out unable to run SQL
+      Server at all (a platform capability restriction, not a bug here —
+      documented as a dead end in `DEPLOYMENT.md`); Fly.io's microVMs
+      don't have that restriction. Found and fixed 4 real bugs getting
+      here: a Debian repo signing mismatch, an opaque 500 on missing
+      config, a schema-corrupting regex from an earlier cleanup pass, and
+      the `alerts` table silently never being populated in the deploy
+      image (its source script shells out to a `docker exec` that isn't
+      available in production). Full path in `DEPLOYMENT.md`.
 - [x] **README.** Expanded with Results & Honest Comparison, Limitations
       (the synthetic boundary restated plainly, every threshold as a
       disclosed judgment call, hardware-specific performance numbers),
