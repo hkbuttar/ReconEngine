@@ -32,6 +32,8 @@ services:
         value: "Y"
       - key: MSSQL_SA_PASSWORD
         sync: false   # set manually in the Render dashboard -- must match the SA password embedded in RECONENGINE_ODBC_CONNECTION_STRING on reconengine-backend
+      - key: PORT
+        value: "1433"   # SQL Server always listens on 1433; the mssql/server image has no EXPOSE, so without this Render defaults private-service routing to its generic 10000 fallback, which nothing is listening on
     disk:
       name: reconengine-sql-data
       mountPath: /var/opt/mssql

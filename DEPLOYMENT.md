@@ -176,6 +176,11 @@ thing that would change).
    confirm the exact host in the dashboard once `reconengine-sql-db` is
    provisioned) and must use the *same* password set in step 3, e.g.:
    `DRIVER={ODBC Driver 18 for SQL Server};SERVER=reconengine-sql-db:1433;DATABASE=reconengine;UID=sa;PWD=<same password as MSSQL_SA_PASSWORD>;TrustServerCertificate=yes;`
+   The port must be `1433`, not whatever generic port the dashboard shows
+   by default — `render.yaml` sets `PORT=1433` on `reconengine-sql-db`
+   specifically because the official SQL Server image doesn't declare an
+   `EXPOSE`, so without that override Render falls back to its generic
+   `10000` default, which nothing inside the container is listening on.
 5. First boot of `reconengine-sql-db` runs the full init sequence (schema
    + real/synthetic data load) automatically — no manual step needed, but
    it takes longer than a normal SQL Server cold start; give it a few
